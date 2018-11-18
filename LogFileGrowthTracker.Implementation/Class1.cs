@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ServerLogFiles.Interfaces
+namespace LogFileGrowthTracker
 {
     public class Class1
     {

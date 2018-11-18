@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>LogFileGrowthTracker.Interface</AssemblyName>
+    <RootNamespace>LogFileGrowthTracker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="9.1.0" />
+  </ItemGroup>
+
+</Project>
