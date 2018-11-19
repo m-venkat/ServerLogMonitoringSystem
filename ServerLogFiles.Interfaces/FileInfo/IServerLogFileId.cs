@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LogFileGrowthTracker.FileInfo
+namespace ServerLogMonitorSystem.FileInfo
 {
 
     /// <summary>

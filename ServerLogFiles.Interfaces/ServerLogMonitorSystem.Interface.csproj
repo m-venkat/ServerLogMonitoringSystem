@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>LogFileGrowthTracker.Interface</AssemblyName>
-    <RootNamespace>LogFileGrowthTracker</RootNamespace>
+    <AssemblyName>ServerLogMonitorSystem.Interface</AssemblyName>
+    <RootNamespace>ServerLogMonitorSystem</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

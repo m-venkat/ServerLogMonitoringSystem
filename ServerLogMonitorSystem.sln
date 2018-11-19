@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogFileGrowthTracker.Interface", "ServerLogFiles.Interfaces\LogFileGrowthTracker.Interface.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogMonitorSystem.Interface", "ServerLogFiles.Interfaces\ServerLogMonitorSystem.Interface.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogFileGrowthTracker.Implementation", "LogFileGrowthTracker.Implementation\LogFileGrowthTracker.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogMonitorSystem.Implementation", "LogFileGrowthTracker.Implementation\ServerLogMonitorSystem.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "TestClient\TestClient.csproj", "{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}"
 EndProject

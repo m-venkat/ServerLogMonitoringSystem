@@ -1,4 +1,4 @@
-﻿namespace LogFileGrowthTracker.FileInfo
+﻿namespace ServerLogMonitorSystem.FileInfo
 {
 
   public class ServerLogFileInfo : IServerLogFileInfo

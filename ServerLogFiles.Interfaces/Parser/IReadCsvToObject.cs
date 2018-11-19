@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using CsvHelper.Configuration;
 
-namespace LogFileGrowthTracker.Parser
+namespace ServerLogMonitorSystem.Parser
 {
-    public interface IReadCsvToObject<T>
+    public interface IReadCsvToObject<out T>
     {
         bool IgnoreDataConversionErrors { get; set; }
         IReaderConfiguration Configuration { get; }

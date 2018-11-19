@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LogFileGrowthTracker.Exceptions
+namespace ServerLogMonitorSystem.Exceptions
 {
     /// <summary>
     /// Base Exception for LogFileGrowthTracker API's each application API level exception will have ErrorCode

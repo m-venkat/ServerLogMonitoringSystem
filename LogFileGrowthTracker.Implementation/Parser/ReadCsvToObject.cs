@@ -5,10 +5,10 @@ using System.Linq.Expressions;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
-using LogFileGrowthTracker.Exceptions;
-using LogFileGrowthTracker.FileInfo;
+using ServerLogMonitorSystem.FileInfo;
+using ServerLogMonitorSystem.Exceptions;
 
-namespace LogFileGrowthTracker.Parser
+namespace ServerLogMonitorSystem.Parser
 {
     
     public class ReadCsvToObject<T> : IReadCsvToObject<T>

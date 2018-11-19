@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LogFileGrowthTracker.FileValidator
+namespace ServerLogMonitorSystem.FileValidator
 {
     interface IFileValidator
     {

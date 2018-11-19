@@ -1,4 +1,4 @@
-﻿namespace LogFileGrowthTracker.FileInfo
+﻿namespace ServerLogMonitorSystem.FileInfo
 {
     /// <summary>
     ///This Interface represents the file shape/schema of transformed/generated output csv file

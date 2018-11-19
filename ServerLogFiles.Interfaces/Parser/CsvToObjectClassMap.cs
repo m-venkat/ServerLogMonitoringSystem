@@ -4,7 +4,7 @@ using System.Text;
 using CsvHelper.Configuration;
 
 
-namespace LogFileGrowthTracker.Parser
+namespace ServerLogMonitorSystem.Parser
 {
     public abstract class CsvToObjectClassMap<T> : ClassMap<T> {}
    

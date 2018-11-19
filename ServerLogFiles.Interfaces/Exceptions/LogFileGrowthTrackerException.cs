@@ -1,4 +1,4 @@
-﻿namespace LogFileGrowthTracker.Exceptions
+﻿namespace ServerLogMonitorSystem.Exceptions
 {
     /// <summary>
     /// All Api/method level custom Exceptions will be thrown as LogFileGrowthTrackerException.

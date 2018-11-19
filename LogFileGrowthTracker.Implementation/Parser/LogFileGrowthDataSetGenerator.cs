@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using LogFileGrowthTracker.Exceptions;
-using LogFileGrowthTracker.FileInfo;
+using ServerLogMonitorSystem.Exceptions;
+using ServerLogMonitorSystem.FileInfo;
 
-namespace LogFileGrowthTracker.Parser
+namespace ServerLogMonitorSystem.Parser
 {
     public class LogFileGrowthDataSetGenerator
     {

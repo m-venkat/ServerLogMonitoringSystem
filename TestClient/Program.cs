@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
-using LogFileGrowthTracker.FileInfo;
-using LogFileGrowthTracker.Parser;
+using ServerLogMonitorSystem.FileInfo;
+using ServerLogMonitorSystem.Parser;
 
 namespace TestClient
 {

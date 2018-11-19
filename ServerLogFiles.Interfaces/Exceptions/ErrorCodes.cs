@@ -1,4 +1,4 @@
-﻿namespace LogFileGrowthTracker.Exceptions
+﻿namespace ServerLogMonitorSystem.Exceptions
 {
     /// <summary>
     /// Error Codes, will grow based on scenarios.
