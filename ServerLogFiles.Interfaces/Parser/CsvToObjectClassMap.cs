@@ -6,7 +6,11 @@ using CsvHelper.Configuration;
 
 namespace ServerLogMonitorSystem.Parser
 {
-    public abstract class CsvToObjectClassMap<T> : ClassMap<T> {}
-   
-    
+    /// <summary>
+    /// Encapsulates the inner working of ClassMap<T> and just exposes 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class CsvToObjectClassMap<T> : ClassMap<T> { }
+
+
 }

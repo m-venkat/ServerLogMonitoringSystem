@@ -9,7 +9,7 @@ namespace ServerLogMonitorSystem.Parser
     /// domain objects.  This Inteface is written in generic way to handle any type and csv shape.
     /// CSV to Object mapper should be passed as constructor argument to map the CSV fields with Object property
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="out T"></typeparam>
     public interface IReadCsvToObject<out T>
     {
         /// <summary>
@@ -24,6 +24,11 @@ namespace ServerLogMonitorSystem.Parser
         /// </summary>
         /// <returns></returns>
         IEnumerable<T> Extract();
+
+        /// <summary>
+        /// Extracts the failed records as IEnumerable<string[]>
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<string[]> ExtractFailedRecords();
     }
 }

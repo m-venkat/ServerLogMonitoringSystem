@@ -8,6 +8,7 @@
     /// </summary>
     public interface IServerLogFactGrowthInfo : IServerLogFileInfo, IServerLogFactInfo
     {
-         uint GrowthRateInBytesPerHour { get; set; }
+        uint MinutesSinceLastLogCreated { get; set; }
+        uint GrowthRateInBytesPerHour { get; set; }
     }
 }
