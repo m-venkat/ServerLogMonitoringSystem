@@ -71,7 +71,7 @@ namespace ServerLogMonitorSystem.Parser
             return _reader.GetRecords<T>();
         }
 
-        public IEnumerable<T> ExtractFailedRecords()
+        public IEnumerable<string[]> ExtractFailedRecords()
         {
             throw new NotImplementedException();
         }
