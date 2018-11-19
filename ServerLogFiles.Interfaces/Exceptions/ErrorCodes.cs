@@ -11,7 +11,9 @@
         CannotReadFile = 103,
         Undefined = 0,
         NullPath = 104,
-        CsvColumnNameMissing=105,
-        ParameterNull = 106
+        CsvColumnNameNotFound=105,
+        ParameterNull = 106,
+        ColumnCountMismatch = 107,
+        DuplicateColumnNames = 108
     }
 }

@@ -6,8 +6,4 @@
     <RootNamespace>ServerLogMonitorSystem</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="9.1.0" />
-  </ItemGroup>
-
 </Project>

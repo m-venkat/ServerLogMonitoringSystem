@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
-using CsvHelper;
-using CsvHelper.Configuration;
+using System.Text.RegularExpressions;
 using ServerLogMonitorSystem.FileInfo;
 using ServerLogMonitorSystem.Exceptions;
 
@@ -13,62 +14,224 @@ namespace ServerLogMonitorSystem.Parser
     
     public class ReadCsvToObject<T> : IReadCsvToObject<T>
     {
-        private string _filePath = string.Empty;
-        private string _csvContent = string.Empty;
-        private readonly CsvReader _reader = null;
-        private CsvToObjectClassMap<T> _mapper;
-        public ReadCsvToObject(string pathToCsv, CsvToObjectClassMap<T> mapper, bool ignoreDataConversionError = true)
+        private string _pathToCsv = string.Empty;
+        private string[] _csvContentLines ;
+        private IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
+        private readonly CsvToObjectMapper<T> _mapper ;
+        private readonly bool _ignoreDataConversionError ;
+        private readonly bool _headerPresentInFirstRow;
+        private readonly bool _mustMatchExpectedHeader;
+        private readonly bool _ignoreColumnCountMismatch;
+        private bool _ignoreEmptyFile;
+
+        public string[]  HeaderColumnNamesInCsvFile { get; private set; }
+
+        public ReadCsvToObject(
+                                string pathToCsv,
+                                CsvToObjectMapper<T> mapper = null,
+                                bool headerPresentInFirstRow = true,
+                                bool mustMatchExpectedHeader = true,
+                                bool ignoreEmptyFile =true,
+                                bool ignoreColumnCountMismatch = true,
+                                bool ignoreDataConversionError = true
+                              )
         {
-            _mapper = mapper;
-            this.IgnoreDataConversionErrors = true;
-            ValidateCsvFilePath(pathToCsv);
-            _reader = new CsvReader(
-                new StringReader(File.ReadAllText(pathToCsv)));
+            this._pathToCsv = pathToCsv;
+            this._mustMatchExpectedHeader = mustMatchExpectedHeader;
+            this._mapper = mapper;
+            this._ignoreDataConversionError = ignoreDataConversionError;
+            this._headerPresentInFirstRow = headerPresentInFirstRow;
+            this._ignoreEmptyFile = ignoreEmptyFile;
+            this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
+
+            _mustMatchExpectedHeader = headerPresentInFirstRow != false && _mustMatchExpectedHeader;
+           
         }
 
-        private void ValidateCsvFilePath(string pathToCsv)
+        /// <summary>
+        /// Runs series of validations on the given CSV file before starting extracting data 
+        /// </summary>
+        /// <param name="pathToCsv">Path to .csv/other allowed extension file</param>
+        private bool PreExtractValidation(string pathToCsv)
         {
-            if (pathToCsv == null)
-                throw new LogFileGrowthTrackerException("Path to CSV File is expected", ErrorCodes.NullPath, string.Empty);
-            else if (!File.Exists(pathToCsv))
-                throw new LogFileGrowthTrackerException($"Given file {pathToCsv} not found ",ErrorCodes.PathNotExists,string.Empty);
+            if (pathToCsv == null) { 
+                _validationErrors.Add(ErrorCodes.NullPath);
+                return false;
+            }
+            else if (!File.Exists(pathToCsv)) { 
+                _validationErrors.Add(ErrorCodes.PathNotExists);
+                return false;
+            }
             else if (Path.GetExtension(pathToCsv).ToUpper() != ".CSV")
-                throw new LogFileGrowthTrackerException($"Invalid file extension (Path.GetExtension(pathToCsv)), Expected .csv extension",ErrorCodes.InvalidFileExtension,"");
+            { 
+                _validationErrors.Add(ErrorCodes.InvalidFileExtension);
+                return false;
+            }
             try
             {
-                _csvContent = File.ReadAllText(pathToCsv);
+                _csvContentLines = File.ReadAllLines(pathToCsv);
             }
             catch (Exception ex)
             {
-                throw new LogFileGrowthTrackerException($"Unable to read file", ErrorCodes.CannotReadFile, ex.StackTrace);
+                _validationErrors.Add(ErrorCodes.CannotReadFile);
+                return false;
             }
 
-            if (string.IsNullOrEmpty(_csvContent.Trim()))
+            if (
+                ((_csvContentLines.Length == 0 || 
+                 (_csvContentLines.Length ==1 && string.IsNullOrEmpty(_csvContentLines[0].Trim())))
+                 && _ignoreDataConversionError == false))
             {
-                throw new LogFileGrowthTrackerException($"File is Empty", ErrorCodes.FileEmpty, "");
+                _validationErrors.Add(ErrorCodes.FileEmpty);
+                return false;
             }
+            return true;
         }
 
         
-        public bool IgnoreDataConversionErrors { get; set; }
-        public IReaderConfiguration Configuration
+        /// <summary>
+        /// Robust SplitCsv function to split the CSV that has comma in between within double quotes
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private  string[] SplitCsv(string input)
         {
-            get { return _reader.Configuration; }
+            Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
+            List<string> list = new List<string>();
+            string curr = null;
+            foreach (Match match in csvSplit.Matches(input))
+            {
+                curr = match.Value;
+                if (0 == curr.Length)
+                {
+                    list.Add("");
+                }
+
+                list.Add(curr.TrimStart(','));
+            }
+
+            return list.ToArray();
         }
 
-        public IEnumerable<T> Extract()
+
+       
+        public bool Extract(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects)
         {
-            _reader.Configuration.RegisterClassMap(_mapper);
-            if (this.IgnoreDataConversionErrors) { 
-                _reader.Configuration.ReadingExceptionOccurred = ex =>
+            domainObjects = null;
+            validationErrors = _validationErrors;
+            if (PreExtractValidation(_pathToCsv))//If PreExtract Validation is sucessfull, parse the file
+            { 
+                if(_csvContentLines.Length == 0)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine($"Error in Data conversion Record{ex.ReadingContext.Record[0]}\t{ex.ReadingContext.Record[1]}");
-                    // Do something with the exception and row data.
-                    // You can look at the exception data here too.
-                };
+                    _validationErrors.Add(ErrorCodes.FileEmpty);
+                    return false;
+                }
+
+                if (!ValidateCsvHeader()) //Validate Header 
+                {
+                    return false;
+                }
+                foreach (var line in _csvContentLines)
+                {
+                    
+                }
             }
-            return _reader.GetRecords<T>();
+            else
+            {
+                return false;
+            }
+            validationErrors = _validationErrors;
+            
+            return true;
+        }
+
+        private bool ConvertCsvRecordToObject(string lineOfRecordFromCsv, out T convertedObj)
+        {
+            string[] columnData = SplitCsv(lineOfRecordFromCsv);
+            Dictionary<string,string> csvHeaderAndData = new Dictionary<string, string>();
+            
+            for (ushort i=0;i<=HeaderColumnNamesInCsvFile.Length;i++)
+            {
+                if(i < HeaderColumnNamesInCsvFile.Length && i < columnData.Length )
+                    csvHeaderAndData.Add(HeaderColumnNamesInCsvFile[i], columnData[i]);
+            }
+
+            if (_ignoreColumnCountMismatch == false && columnData.Length != HeaderColumnNamesInCsvFile.Length)
+            {
+                _validationErrors.Add(ErrorCodes.ColumnCountMismatch);
+                convertedObj = default(T);
+                return false;
+            }
+
+            T domainObj = (T)Activator.CreateInstance(typeof(T));
+            PropertyInfo[] properties = domainObj.GetType().GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                //Get Each property name from list of properties
+                CsvToObjectMap<T> map = this._mapper.ObjectToCsvMapping[property.Name];
+                string csvColumnNameFromMap = map.CsvColumnName;
+                string columnValue = csvHeaderAndData[csvColumnNameFromMap];
+                property.SetValue(domainObj, Convert.ChangeType(columnValue, property.PropertyType), null);
+            }
+
+            convertedObj = domainObj;
+            return true;
+        }
+
+        /// <summary>
+        /// Private Method to Validate the CSV Header file and throw Exceptions
+        /// </summary>
+        private bool ValidateCsvHeader()
+        {
+            //Get the Header Row of CSV File
+            if (_headerPresentInFirstRow)//Read the first row as Header
+            {
+                this.HeaderColumnNamesInCsvFile = SplitCsv(_csvContentLines[0]);
+                return IsCsvColumNamesAsExpectedWithoutDuplicateColumnNames();//Throws Exception if csv columns are not as expected
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Are the columns in Csv file is as expected by the mapping input parameters
+        /// </summary>
+        private bool IsCsvColumNamesAsExpectedWithoutDuplicateColumnNames()
+        {
+            if (_mustMatchExpectedHeader && _headerPresentInFirstRow)
+            {
+                bool columnsNotMatches = true;
+                foreach (var columnName in HeaderColumnNamesInCsvFile)
+                {
+                    var obj = _mapper.ObjectToCsvMapping.Where(item =>
+                            item.Value.CsvColumnName.Trim().ToUpper() == columnName.Trim().ToUpper())
+                        .Select(e => (KeyValuePair<string, CsvToObjectMap<T>>?)e)
+                        .FirstOrDefault();
+                    if (obj == null)
+                        columnsNotMatches = false;
+                }
+                if (columnsNotMatches == false )
+                {
+                    this._validationErrors.Add(ErrorCodes.CsvColumnNameNotFound);
+                    return false;
+                }
+
+                if (HeaderColumnNamesInCsvFile.Select(i => i.Trim().ToUpper()).Distinct().Count() !=
+                    HeaderColumnNamesInCsvFile.Length)
+                {
+                    this._validationErrors.Add(ErrorCodes.DuplicateColumnNames);
+                    return false;
+                }
+
+            }
+            return true;
+        }
+
+       
+
+        public IEnumerable<IEnumerable<T>> SliceDataSetByKey(Expression<Func<T>> keyProperty)
+        {
+            throw new NotImplementedException();
         }
 
         public IEnumerable<string[]> ExtractFailedRecords()

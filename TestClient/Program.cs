@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CsvHelper;
-using CsvHelper.Configuration;
+using System.Reflection.Metadata;
 using ServerLogMonitorSystem.FileInfo;
 using ServerLogMonitorSystem.Parser;
 
@@ -11,35 +10,12 @@ namespace TestClient
 {
     class Program
     {
-        private static string filePath = $@"C:\Users\muniyandiv\Downloads\TestData\files.csv";
-        private static string fileStat = @"C:\Users\muniyandiv\Downloads\TestData\filestats.csv";
+        //private static string filePath = $@"C:\Users\muniyandiv\Downloads\TestData\files.csv";
+        //private static string fileStat = @"C:\Users\muniyandiv\Downloads\TestData\filestats.csv";
 
-        //private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
-        //  private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
-        public class FileInfo
-        {
-            public uint Id { get; set; }
-            public String FileName { get; set; }
-        }
-
-        public sealed class ServerLogFileInfoCsvMap : CsvToObjectClassMap<ServerLogFileInfo>
-        {
-            public ServerLogFileInfoCsvMap()
-            {
-                Map(m => m.FileId).Name("ID");
-                Map(m => m.FileName).Name("Name");
-            }
-        }
-
-        public sealed class ServerLogFactInfoCsvMap : CsvToObjectClassMap<ServerLogFactInfo>
-        {
-            public ServerLogFactInfoCsvMap()
-            {
-                Map(m => m.FileId).Name("FileID");
-                Map(m => m.TimeStamp).Name("Timestamp");
-                Map(m => m.SizeInBytes).Name("SizeInBytes");
-            }
-        }
+        private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
+        private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
+        
 
         static void Main(string[] args)
         {
@@ -76,27 +52,17 @@ namespace TestClient
 
         static List<ServerLogFileInfo> GetServerLogFileInfo()
         {
-            ReadCsvToObject<ServerLogFileInfo> extractObj = new ReadCsvToObject<ServerLogFileInfo>
-            (
-                filePath,
-                new ServerLogFileInfoCsvMap()
-            );
-            extractObj.IgnoreDataConversionErrors = true;
-            var records = extractObj.Extract();
-            return records.ToList();
-            
+            CsvToObjectMapper<ServerLogFileInfo> mapper = new CsvToObjectMapper<ServerLogFileInfo>();
+        
+          ReadCsvToObject<IServerLogFileInfo> readCsv = new ReadCsvToObject<IServerLogFileInfo>(
+              filePath
+          );
+            return null;
         }
 
         static List<ServerLogFactInfo> GetServerLogFileFactInfo()
         {
-            ReadCsvToObject<ServerLogFactInfo> extractObj = new ReadCsvToObject<ServerLogFactInfo>
-            (
-                fileStat,
-                new ServerLogFactInfoCsvMap()
-            );
-            var records = extractObj.Extract();
-            return records.ToList();
-
+            return null;
         }
 
         //static void oldMethod(string[] args)
