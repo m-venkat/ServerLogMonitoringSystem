@@ -112,7 +112,7 @@ namespace ServerLogMonitorSystem.Parser
 
 
        
-        public bool Extract(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects)
+        public bool Read(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects)
         {
             domainObjects = null;
             validationErrors = _validationErrors;

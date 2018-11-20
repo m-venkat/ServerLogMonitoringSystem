@@ -24,7 +24,7 @@ namespace ServerLogMonitorSystem.Parser
         /// <param name="validationErrors">list of Validation Errors as Enum</param>
         /// <param name="domainObjects">returns extracted list of Objects</param>
         /// <returns>true if deserialization is successful else false</returns>
-        bool Extract(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects);
+        bool Read(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects);
 
 
         /// <summary>

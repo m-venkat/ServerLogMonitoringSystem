@@ -61,7 +61,7 @@ namespace TestClient
           );
             IList<ErrorCodes> listOfErrorCodes;
             IEnumerable<ServerLogFileInfo> logInfoFiles;
-            bool result = readCsv.Extract(out listOfErrorCodes, out logInfoFiles);
+            bool result = readCsv.Read(out listOfErrorCodes, out logInfoFiles);
             return logInfoFiles.ToList();
         }
 
@@ -72,12 +72,12 @@ namespace TestClient
             mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
             mapper.AddMap(t => t.TimeStamp, "Timestamp");
             CsvToObjectReader<ServerLogFactInfo> readCsv = new CsvToObjectReader<ServerLogFactInfo>(
-                filePath, mapper
+                fileStat, mapper
 
             );
             IList<ErrorCodes> listOfErrorCodes;
             IEnumerable<ServerLogFactInfo> logInfoFiles;
-            bool result = readCsv.Extract(out listOfErrorCodes, out logInfoFiles);
+            bool result = readCsv.Read(out listOfErrorCodes, out logInfoFiles);
             return logInfoFiles.ToList();
         }
 
