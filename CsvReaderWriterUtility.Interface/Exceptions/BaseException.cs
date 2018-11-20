@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ServerLogMonitorSystem.Exceptions
+namespace CsvReadWriteUtility.Exceptions
 {
     /// <summary>
     /// Base Exception for LogFileGrowthTracker API's each application API level exception will have ErrorCode

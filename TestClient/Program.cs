@@ -4,20 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
-using ServerLogMonitorSystem.Exceptions;
+using CsvReadWriteUtility.Exceptions;
+using CsvReadWriteUtility.Parser;
+using CsvReadWriteUtility.Util;
 using ServerLogMonitorSystem.FileInfo;
-using ServerLogMonitorSystem.Parser;
 
 namespace TestClient
 {
     class Program
     {
-        private static string filePath = $@"C:\Users\muniyandiv\Downloads\TestData\files.csv";
-        private static string fileStat = @"C:\Users\muniyandiv\Downloads\TestData\filestats.csv";
+        //private static string filePath = $@"C:\Users\muniyandiv\Downloads\TestData\files.csv";
+        //private static string fileStat = @"C:\Users\muniyandiv\Downloads\TestData\filestats.csv";
 
-        //private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
-        //private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
-        
+        private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
+        private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
+
 
         static void Main(string[] args)
         {
@@ -56,13 +57,14 @@ namespace TestClient
             mapper.AddMap((t) => t.FileId, "ID");
             mapper.AddMap(t=> t.FileName,"Name");
             CsvToObjectReader<ServerLogFileInfo> readCsv = new CsvToObjectReader<ServerLogFileInfo>(
-              filePath,mapper
+              filePath,new FileService(),mapper);
+            var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
+            foreach (var error in errorsOccured)
+            {
+                Console.WriteLine($"{error.ErrorCode}-{error.ErrorDescription}");
+            }
 
-          );
-            IList<ErrorCodes> listOfErrorCodes;
-            IEnumerable<ServerLogFileInfo> logInfoFiles;
-            bool result = readCsv.Read(out listOfErrorCodes, out logInfoFiles);
-            return logInfoFiles.ToList();
+            return result;
         }
 
         static List<ServerLogFactInfo> GetServerLogFileFactInfo()
@@ -72,13 +74,14 @@ namespace TestClient
             mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
             mapper.AddMap(t => t.TimeStamp, "Timestamp");
             CsvToObjectReader<ServerLogFactInfo> readCsv = new CsvToObjectReader<ServerLogFactInfo>(
-                fileStat, mapper
+                    fileStat, new FileService(), mapper);
+            var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
+            foreach (var error in errorsOccured)
+            {
+                Console.WriteLine($"{error.ErrorCode}-{error.ErrorDescription}");
+            }
 
-            );
-            IList<ErrorCodes> listOfErrorCodes;
-            IEnumerable<ServerLogFactInfo> logInfoFiles;
-            bool result = readCsv.Read(out listOfErrorCodes, out logInfoFiles);
-            return logInfoFiles.ToList();
+            return result;
         }
 
         //static void oldMethod(string[] args)

@@ -1,4 +1,4 @@
-﻿namespace ServerLogMonitorSystem.Exceptions
+﻿namespace CsvReadWriteUtility.Exceptions
 {
     /// <summary>
     /// Error Codes, will grow based on scenarios.
@@ -14,13 +14,14 @@
         CsvColumnNameNotFound=105,
         ParameterNull = 106,
         ColumnCountMismatch = 107,
-        DuplicateColumnNames = 108
+        DuplicateColumnNames = 108,
+        DataConversionError = 109
     }
 
     public class ErrorCodeAndDescription
     {
-        public ErrorCodes ErrorCode { get; internal set; }
-        public string ErrorDescription { get; internal set; }
+        public ErrorCodes ErrorCode { get;  set; }
+        public string ErrorDescription { get;  set; }
 
         public void AddErrorCodeAndDescription(ErrorCodes errorCode, string errorDescription)
         {

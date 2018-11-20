@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
-using ServerLogMonitorSystem.Exceptions;
+using CsvReadWriteUtility.Exceptions;
 
 
-namespace ServerLogMonitorSystem.Parser
+namespace CsvReadWriteUtility.Parser
 {
 
-    public class CsvToObjectMap<T>
+    public class CsvToObjectMap<T> : ICsvToObjectMap<T>
     {
-        public MemberExpression Property { get; internal set; }
-        public String CsvColumnName { get; internal set; }
+        public MemberExpression Property { get;  set; }
+        public String CsvColumnName { get;  set; }
     }
 
     /// <summary>
@@ -33,9 +33,9 @@ namespace ServerLogMonitorSystem.Parser
         public void AddMap<TKey>( Expression<Func<T, TKey>> property, string csvColumnName)
         {
             if (property is null)
-                throw new LogFileGrowthTrackerException($"property cannot be null", ErrorCodes.ParameterNull);
+                throw new CsvReadWriteException($"property cannot be null", ErrorCodes.ParameterNull);
             if (csvColumnName is null)
-                throw new LogFileGrowthTrackerException($"csvColumnName cannot be null", ErrorCodes.ParameterNull);
+                throw new CsvReadWriteException($"csvColumnName cannot be null", ErrorCodes.ParameterNull);
             
             MemberExpression selectedPropertyAsExpresion = ((MemberExpression)property.Body);
             var name = selectedPropertyAsExpresion.Member.Name;

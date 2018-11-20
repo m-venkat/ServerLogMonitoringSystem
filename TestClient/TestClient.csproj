@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj" />
     <ProjectReference Include="..\LogFileGrowthTracker.Implementation\ServerLogMonitorSystem.Implementation.csproj" />
   </ItemGroup>
 

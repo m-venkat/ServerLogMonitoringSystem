@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ServerLogMonitorSystem.Utils
+namespace CsvReadWriteUtility.Utils
 {
-    public class SplitTextRowIntoCsv
+    public class SplitLineOfTextIntoCsv
     {
         /// <summary>
         /// 
@@ -16,8 +16,7 @@ namespace ServerLogMonitorSystem.Utils
         /// <returns></returns>
         public static string[] Split(string record, string delimiter=",", string qualifier ="\"", bool trimData =false)
         {
-            // In-Line for example, but I implemented as string extender in production code
-            Func<string, int, int> IndexOfNextNonWhiteSpaceChar = delegate (string source, int startIndex)
+            int IndexOfNextNonWhiteSpaceChar(string source, int startIndex)
             {
                 if (startIndex >= 0)
                 {
@@ -34,7 +33,7 @@ namespace ServerLogMonitorSystem.Utils
                 }
 
                 return -1;
-            };
+            }
 
             var results = new List<string>();
             var result = new StringBuilder();
