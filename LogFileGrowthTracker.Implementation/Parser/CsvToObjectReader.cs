@@ -8,12 +8,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using ServerLogMonitorSystem.FileInfo;
 using ServerLogMonitorSystem.Exceptions;
+using ServerLogMonitorSystem.Utils;
 
 namespace ServerLogMonitorSystem.Parser
 {
     
-    public class ReadCsvToObject<T> : IReadCsvToObject<T>
+    public class CsvToObjectReader<T> : ICsvToObjectReader<T>
     {
+        #region Private Variables
         private string _pathToCsv = string.Empty;
         private string[] _csvContentLines ;
         private IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
@@ -23,10 +25,25 @@ namespace ServerLogMonitorSystem.Parser
         private readonly bool _mustMatchExpectedHeader;
         private readonly bool _ignoreColumnCountMismatch;
         private bool _ignoreEmptyFile;
+        #endregion
 
-        public string[]  HeaderColumnNamesInCsvFile { get; private set; }
+        #region Public Properties
+        public string[] HeaderColumnNamesInCsvFile { get; private set; }
+        #endregion
 
-        public ReadCsvToObject(
+
+        /// <summary>
+        /// Constructs the Csv to Object reader instance.  Most of the parameters are optional parameters
+        /// with default value.  Override the default value with the custom values
+        /// </summary>
+        /// <param name="pathToCsv">Complete file path to the .csv/txt file</param>
+        /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
+        /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?</param>
+        /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?</param>
+        /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?</param>
+        /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?</param>
+        /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?</param>
+        public CsvToObjectReader(
                                 string pathToCsv,
                                 CsvToObjectMapper<T> mapper = null,
                                 bool headerPresentInFirstRow = true,
@@ -36,6 +53,9 @@ namespace ServerLogMonitorSystem.Parser
                                 bool ignoreDataConversionError = true
                               )
         {
+            /*
+             Initialize all the initial configuration settings
+             */
             this._pathToCsv = pathToCsv;
             this._mustMatchExpectedHeader = mustMatchExpectedHeader;
             this._mapper = mapper;
@@ -43,7 +63,6 @@ namespace ServerLogMonitorSystem.Parser
             this._headerPresentInFirstRow = headerPresentInFirstRow;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
-
             _mustMatchExpectedHeader = headerPresentInFirstRow != false && _mustMatchExpectedHeader;
            
         }
@@ -89,29 +108,7 @@ namespace ServerLogMonitorSystem.Parser
         }
 
         
-        /// <summary>
-        /// Robust SplitCsv function to split the CSV that has comma in between within double quotes
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private  string[] SplitCsv(string input)
-        {
-            Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
-            List<string> list = new List<string>();
-            string curr = null;
-            foreach (Match match in csvSplit.Matches(input))
-            {
-                curr = match.Value;
-                if (0 == curr.Length)
-                {
-                    list.Add("");
-                }
-
-                list.Add(curr.TrimStart(','));
-            }
-
-            return list.ToArray();
-        }
+        
 
 
        
@@ -119,6 +116,7 @@ namespace ServerLogMonitorSystem.Parser
         {
             domainObjects = null;
             validationErrors = _validationErrors;
+            List<T> convertedObjects = new List<T>();
             if (PreExtractValidation(_pathToCsv))//If PreExtract Validation is sucessfull, parse the file
             { 
                 if(_csvContentLines.Length == 0)
@@ -131,9 +129,11 @@ namespace ServerLogMonitorSystem.Parser
                 {
                     return false;
                 }
-                foreach (var line in _csvContentLines)
+                foreach (var line in _csvContentLines.Skip(_headerPresentInFirstRow ? 1 : 0 ))
                 {
-                    
+                    T convertedObj;
+                    ConvertCsvRecordToObject(line, out convertedObj);
+                    convertedObjects.Add(convertedObj);
                 }
             }
             else
@@ -141,13 +141,13 @@ namespace ServerLogMonitorSystem.Parser
                 return false;
             }
             validationErrors = _validationErrors;
-            
+            domainObjects= convertedObjects.AsEnumerable();
             return true;
         }
 
         private bool ConvertCsvRecordToObject(string lineOfRecordFromCsv, out T convertedObj)
         {
-            string[] columnData = SplitCsv(lineOfRecordFromCsv);
+            string[] columnData = SplitTextRowIntoCsv.Split(lineOfRecordFromCsv);
             Dictionary<string,string> csvHeaderAndData = new Dictionary<string, string>();
             
             for (ushort i=0;i<=HeaderColumnNamesInCsvFile.Length;i++)
@@ -186,7 +186,7 @@ namespace ServerLogMonitorSystem.Parser
             //Get the Header Row of CSV File
             if (_headerPresentInFirstRow)//Read the first row as Header
             {
-                this.HeaderColumnNamesInCsvFile = SplitCsv(_csvContentLines[0]);
+                this.HeaderColumnNamesInCsvFile = SplitTextRowIntoCsv.Split(_csvContentLines[0]);
                 return IsCsvColumNamesAsExpectedWithoutDuplicateColumnNames();//Throws Exception if csv columns are not as expected
             }
 

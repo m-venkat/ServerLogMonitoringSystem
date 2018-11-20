@@ -16,4 +16,16 @@
         ColumnCountMismatch = 107,
         DuplicateColumnNames = 108
     }
+
+    public class ErrorCodeAndDescription
+    {
+        public ErrorCodes ErrorCode { get; internal set; }
+        public string ErrorDescription { get; internal set; }
+
+        public void AddErrorCodeAndDescription(ErrorCodes errorCode, string errorDescription)
+        {
+            this.ErrorCode = errorCode;
+            this.ErrorDescription = errorDescription;
+        }
+    }
 }

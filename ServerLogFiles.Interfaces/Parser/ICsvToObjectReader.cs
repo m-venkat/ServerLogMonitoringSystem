@@ -14,7 +14,7 @@ namespace ServerLogMonitorSystem.Parser
     /// CSV to Object mapper should be passed as constructor argument to map the CSV fields with Object property
     /// </summary>
     /// <typeparam name="out T"></typeparam>
-    public interface IReadCsvToObject<T>
+    public interface ICsvToObjectReader<T>
     {
         
         /// <summary>
