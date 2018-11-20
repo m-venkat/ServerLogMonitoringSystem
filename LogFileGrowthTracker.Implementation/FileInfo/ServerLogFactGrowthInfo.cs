@@ -16,6 +16,6 @@ namespace ServerLogMonitorSystem.FileInfo
         public DateTime TimeStamp { get; set; }
         public uint SizeInBytes { get; set; }
         public uint GrowthRateInBytesPerHour { get; set; }
-        public uint MinutesSinceLastLogCreated { get; set; }
+        public uint MinutesSinceLastLogCreatedForThisFile { get; set; }
     }
 }
