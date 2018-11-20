@@ -16,9 +16,9 @@ namespace ServerLogMonitorSystem.Parser
     public class CsvToObjectReader<T> : ICsvToObjectReader<T>
     {
         #region Private Variables
-        private string _pathToCsv = string.Empty;
+        private readonly string _pathToCsv;
         private string[] _csvContentLines ;
-        private IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
+        private readonly IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
         private readonly CsvToObjectMapper<T> _mapper ;
         private readonly bool _ignoreDataConversionError ;
         private readonly bool _headerPresentInFirstRow;
@@ -38,11 +38,11 @@ namespace ServerLogMonitorSystem.Parser
         /// </summary>
         /// <param name="pathToCsv">Complete file path to the .csv/txt file</param>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
-        /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?</param>
-        /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?</param>
-        /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?</param>
-        /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?</param>
-        /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?</param>
+        /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?[default=true]</param>
+        /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?[default=true]</param>
+        /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
+        /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?[default=true]</param>
+        /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?[default=true]</param>
         public CsvToObjectReader(
                                 string pathToCsv,
                                 CsvToObjectMapper<T> mapper = null,
@@ -68,7 +68,7 @@ namespace ServerLogMonitorSystem.Parser
         }
 
         /// <summary>
-        /// Runs series of validations on the given CSV file before starting extracting data 
+        /// Runs series of pre validations on the given CSV file before starting extracting data 
         /// </summary>
         /// <param name="pathToCsv">Path to .csv/other allowed extension file</param>
         private bool PreExtractValidation(string pathToCsv)
@@ -111,7 +111,12 @@ namespace ServerLogMonitorSystem.Parser
         
 
 
-       
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="validationErrors"></param>
+       /// <param name="domainObjects"></param>
+       /// <returns></returns>
         public bool Read(out IList<ErrorCodes> validationErrors, out IEnumerable<T> domainObjects)
         {
             domainObjects = null;
