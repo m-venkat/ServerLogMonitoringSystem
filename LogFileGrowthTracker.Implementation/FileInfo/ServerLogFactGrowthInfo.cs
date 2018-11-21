@@ -13,9 +13,16 @@ namespace ServerLogMonitorSystem.FileInfo
     {
         public uint FileId { get; set; }
         public string FileName { get; set; }
-        public DateTime TimeStamp { get; set; }
-        public uint SizeInBytes { get; set; }
-        public uint GrowthRateInBytesPerHour { get; set; }
-        public uint MinutesSinceLastLogCreatedForThisFile { get; set; }
+        public DateTime TimeStamp { get ; set; }
+        public string TimeStampFormatted => TimeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        public double SizeInBytes { get; set; }
+        public double GrowthRateInBytesPerHour { get; set; }
+        public double MilliSecondsSinceLastLogCreatedForThisFile { get; set; }
+
+        public IServerLogFactGrowthInfo GetInstance()
+        {
+            return new ServerLogFactGrowthInfo();
+        }
+
     }
 }

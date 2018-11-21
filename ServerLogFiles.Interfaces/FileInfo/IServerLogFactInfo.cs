@@ -19,6 +19,6 @@ namespace ServerLogMonitorSystem.FileInfo
         /// <summary>
         /// Timestamp of Log File with Millisecond Permission
         /// </summary>
-        uint SizeInBytes { get; set; }
+        double SizeInBytes { get; set; }
     }
 }

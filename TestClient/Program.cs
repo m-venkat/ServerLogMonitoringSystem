@@ -7,6 +7,7 @@ using System.Reflection.Metadata;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
 using CsvReadWriteUtility.Util;
+using ServerLogMonitorSystem.DomainModelGenerator;
 using ServerLogMonitorSystem.FileInfo;
 
 namespace TestClient
@@ -18,7 +19,6 @@ namespace TestClient
 
         private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
         private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
-
 
         static void Main(string[] args)
         {
@@ -39,14 +39,19 @@ namespace TestClient
                 Console.WriteLine($"{record.FileId}\t{record.TimeStamp}\t{record.SizeInBytes}");
             }
             Console.ReadKey();
-            //LogFileGrowthDataSetGenerator lg=new LogFileGrowthDataSetGenerator(serverLogFileInfoList,serverLogFactInfoList);
-            //List<IServerLogFactGrowthInfo> serverLogFactGrowthInfoList = lg.GenerateLogFileGrowthDataSet().ToList();
-            //foreach (var joinedRec in serverLogFactGrowthInfoList)
-            //{
-            //    Console.WriteLine(
-            //        $"{joinedRec.FileId}\t{joinedRec.FileName}\t{joinedRec.TimeStamp}\t{joinedRec.SizeInBytes}");
-            //}
-
+            ServerLogFactGrowthInfoGenerator slfg = new ServerLogFactGrowthInfoGenerator(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
+            var sliced = slfg.GenerateSlicedList();
+            Console.Clear();
+            foreach (var filegroup in sliced)
+            {
+                foreach (var f in filegroup)
+                {
+                    Console.WriteLine(
+                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.MilliSecondsSinceLastLogCreatedForThisFile}\t{f.GrowthRateInBytesPerHour}");
+                }
+                Console.WriteLine("=============================================================================================");
+                Console.ReadKey();
+            }
             Console.ReadKey();
             
         }
@@ -84,37 +89,6 @@ namespace TestClient
             return result;
         }
 
-        //static void oldMethod(string[] args)
-        //{
-        //    Console.WriteLine("Hello World!");
-
-        //    try
-        //    {
-        //        //var csv = new CsvReader(;
-        //        var csv = new CsvReader(
-        //            new StringReader(File.ReadAllText(@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv")));
-        //        csv.Configuration.RegisterClassMap<MyClassMap>();
-        //        csv.Configuration.ReadingExceptionOccurred = ex =>
-        //        {
-        //            //Console.WriteLine(ex.Message);
-
-        //            Console.WriteLine($"Error in Data conversion{ex.Data[0]}\t{ex.Data[1]}");
-        //            // Do something with the exception and row data.
-        //            // You can look at the exception data here too.
-        //        };
-        //        var records = csv.GetRecords<FileInfo>();
-        //        foreach (var record in records)
-        //        {
-        //            Console.WriteLine($"{record.Id}\t{record.FileName}");
-        //        }
-        //        Console.WriteLine("CSV Reader construction successfull");
-        //        Console.ReadKey();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message + Environment.NewLine + ex.StackTrace);
-        //        Console.ReadKey();
-        //    }
-        //}
+      
     }
 }
