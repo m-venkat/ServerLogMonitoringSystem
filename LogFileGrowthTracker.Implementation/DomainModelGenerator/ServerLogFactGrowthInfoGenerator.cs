@@ -78,14 +78,9 @@ namespace ServerLogMonitorSystem.DomainModelGenerator
         {
             _serverLogFactGrowthInfoList = JoinFileAndFactDataSetHorizontally();
             _serverLogFactGrowthInfoList = CalculateAndAdd_MinutesSinceLastLogCreatedForThisFile_GrowthRateInBytesPerHour(_serverLogFactGrowthInfoList);
-
             var res = _serverLogFactGrowthInfoList.GroupBy(t => t.FileId).Select(grp => grp.ToList()).ToList();
             foreach (var list in res)
-            {
-                // First file in the list for each file group will not have growth rate and milliseconds since Info
-                list[0].MilliSecondsSinceLastLogCreatedForThisFile = 0;
-                list[0].GrowthRateInBytesPerHour = 0;
-            }
+                list.RemoveAt(0);//Remove the first Element [First element will not have previous entry to compare growth]
             return res;
         }
 

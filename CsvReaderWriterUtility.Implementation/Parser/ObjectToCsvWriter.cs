@@ -119,9 +119,10 @@ namespace CsvReadWriteUtility.Parser
         {
             foreach (var fileContent in _csvFiles)
             {
+                var csvHeaderColumn = string.Empty;
                 var fullpath = _fileService.PathCombine(targetFolderPath,
                     DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss_fff") + ".csv");
-                _fileService.WriteAllText(fullpath, fileContent);
+                _fileService.WriteAllText(fullpath, GetCsvColumHeaderFromMapper()+fileContent);
             }
         }
 
@@ -136,15 +137,27 @@ namespace CsvReadWriteUtility.Parser
             {
                 IReflectedPropertyInfo propInfo =
                     reflectedList.FirstOrDefault(i => i.PropertyName.Trim().ToUpper() == propName.Trim().ToUpper());
-                string column = GetCsvColumnFromPropertyInfo(propInfo);
-                csvStringBuilder.Append(firstColumn ? column : "," + column);
+                string columnData = GetCsvColumnDataFromPropertyInfo(propInfo);
+                csvStringBuilder.Append(firstColumn ? columnData : "," + columnData);
                 firstColumn = false;
             }
 
             return csvStringBuilder.ToString() + Environment.NewLine;
         }
 
-        private string GetCsvColumnFromPropertyInfo(IReflectedPropertyInfo propInfo)
+        private string GetCsvColumHeaderFromMapper()
+        {
+            string csvHeaderColumn = string.Empty;
+            bool firstColumn = true;
+            foreach (var header in HeaderColumnNamesInCsvFile)
+            {
+                csvHeaderColumn += firstColumn == false ? "," : "";
+                csvHeaderColumn += "\"" + header + "\"";
+                firstColumn = false;
+            }
+            return csvHeaderColumn += Environment.NewLine;
+        }
+        private string GetCsvColumnDataFromPropertyInfo(IReflectedPropertyInfo propInfo)
         {
             if ((propInfo.PropertyDataType.ToUpper().Contains("STRING")) ||
                 propInfo.PropertyDataType.ToUpper().Contains("DATE"))
