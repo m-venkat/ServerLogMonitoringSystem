@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
-using CsvReadWriteUtility.Util;
+using CsvReadWriteUtility.Utils;
 using CsvReadWriteUtility.Utils;
 
 
@@ -22,7 +22,7 @@ namespace CsvReadWriteUtility.Parser
         private readonly IFileService _fileService;
         private string[] _csvContentLines = new string[] { };
         private readonly IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
-        private readonly CsvToObjectMapper<T> _mapper ;
+        private readonly ICsvToObjectMapper<T> _mapper ;
         private readonly bool _ignoreDataConversionError ;
         private readonly bool _headerPresentInFirstRow;
         private readonly bool _mustMatchExpectedHeader;
@@ -30,7 +30,7 @@ namespace CsvReadWriteUtility.Parser
         private bool _ignoreEmptyFile;
         readonly Dictionary<string, string> _csvHeaderAndData = new Dictionary<string, string>();
         private string[] _failedParsingRecords = new string[] { };
-        private bool _disposed = false;
+
         #endregion
 
         #region Public Properties
@@ -62,7 +62,7 @@ namespace CsvReadWriteUtility.Parser
         public CsvToObjectReader(
                                 string pathToCsv,
                                 IFileService fileService,
-                                CsvToObjectMapper<T> mapper,
+                                ICsvToObjectMapper<T> mapper,
                                 bool headerPresentInFirstRow = true,
                                 bool mustMatchExpectedHeader = true,
                                 bool ignoreEmptyFile =true,
@@ -246,7 +246,7 @@ namespace CsvReadWriteUtility.Parser
             foreach (PropertyInfo property in properties)
             {
                 //Get Each property name from list of properties
-                CsvToObjectMap<T> map = this._mapper.ObjectToCsvMapping[property.Name];
+                ICsvToObjectMap<T> map = this._mapper.ObjectToCsvMapping[property.Name];
                 string csvColumnNameFromMap = map.CsvColumnName;
                 string columnValue = _csvHeaderAndData[csvColumnNameFromMap];
                 try
@@ -257,9 +257,8 @@ namespace CsvReadWriteUtility.Parser
                 {
                     convertedObj = default(T);
                     this.ExtractFailedRows.Add(lineOfRecordFromCsv);
-                    AddError(ErrorCodes.DataConversionError, $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name}");
+                    AddError(ErrorCodes.DataConversionError, $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name}\n{ex.Message}\n{ex.StackTrace}");
                     return false;
-                    
                 }
             }
 
@@ -281,7 +280,7 @@ namespace CsvReadWriteUtility.Parser
                 {
                     var obj = _mapper.ObjectToCsvMapping.Where(item =>
                             item.Value.CsvColumnName.Trim().ToUpper() == columnName.Trim().ToUpper())
-                        .Select(e => (KeyValuePair<string, CsvToObjectMap<T>>?)e)
+                        .Select(e => (KeyValuePair<string, ICsvToObjectMap<T>>?)e)
                         .FirstOrDefault();
                     if (obj == null)
                     {

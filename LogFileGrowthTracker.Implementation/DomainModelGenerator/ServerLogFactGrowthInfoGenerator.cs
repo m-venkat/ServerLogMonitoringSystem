@@ -108,7 +108,7 @@ namespace ServerLogMonitorSystem.DomainModelGenerator
                     record.MilliSecondsSinceLastLogCreatedForThisFile = milliSecondsSinceLastLogCreatedForThisFile;
                     record.GrowthRateInBytesPerHour =
                         Math.Round(CalculateLogFileGrowthPerHourInBytes(milliSecondsSinceLastLogCreatedForThisFile,
-                            fileGrowthInBytes));
+                            fileGrowthInBytes),1);
                 }
                 prevRecord = record;
             }

@@ -6,7 +6,8 @@ using System.Linq;
 using System.Reflection.Metadata;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
-using CsvReadWriteUtility.Util;
+using CsvReadWriteUtility.Utils;
+using CsvReadWriteUtility.Utils;
 using ServerLogMonitorSystem.DomainModelGenerator;
 using ServerLogMonitorSystem.FileInfo;
 
@@ -39,9 +40,16 @@ namespace TestClient
                 Console.WriteLine($"{record.FileId}\t{record.TimeStamp}\t{record.SizeInBytes}");
             }
             Console.ReadKey();
-            ServerLogFactGrowthInfoGenerator slfg = new ServerLogFactGrowthInfoGenerator(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
-            var sliced = slfg.GenerateSlicedList();
             Console.Clear();
+            WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);
+
+
+            Console.ReadKey();
+            
+        }
+
+        static void SlicePrint(IList<List<ServerLogFactGrowthInfo>> sliced)
+        {
             foreach (var filegroup in sliced)
             {
                 foreach (var f in filegroup)
@@ -52,8 +60,22 @@ namespace TestClient
                 Console.WriteLine("=============================================================================================");
                 Console.ReadKey();
             }
-            Console.ReadKey();
-            
+        }
+        static void WriteCsvFileFinally(List<ServerLogFileInfo> serverLogFileInfoList, List<ServerLogFactInfo> serverLogFactInfoList)
+        {
+            ServerLogFactGrowthInfoGenerator slfg = new ServerLogFactGrowthInfoGenerator(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
+            var sliced = slfg.GenerateSlicedList();
+            SlicePrint(sliced);
+            Console.Clear();
+            CsvToObjectMapper<ServerLogFactGrowthInfo> mapper = new CsvToObjectMapper<ServerLogFactGrowthInfo>();
+            mapper.AddMap(t => t.FileId, "FileID");
+            mapper.AddMap(t => t.FileName, "Name");
+            mapper.AddMap(t => t.TimeStampFormatted, "Timestamp");
+            mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
+            mapper.AddMap(t => t.GrowthRateInBytesPerHour, "GrowthRateInBytesPerHour");
+            ReflectionHelper<ServerLogFactGrowthInfo> rh = new ReflectionHelper<ServerLogFactGrowthInfo>();
+            ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C:\Users\venkat\Documents\FinalCsvFiles\");
+            objCsvWriter.Write();
         }
 
         static List<ServerLogFileInfo> GetServerLogFileInfo()

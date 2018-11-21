@@ -20,7 +20,7 @@ namespace CsvReadWriteUtility.Parser
     /// <typeparam name="T"></typeparam>
     public  interface ICsvToObjectMapper<T>
     {
-         Dictionary<string, ICsvToObjectMap<T>> ObjectToCsvMapping { get;  set; }
+         Dictionary<string, ICsvToObjectMap<T>> ObjectToCsvMapping { get;  }
         /// <summary>
         /// This is the Mapper method that maps Domain object properties with Csv file column.
         /// Instance of this class needs to be passed in to the constructor of <see cref="ICsvToObjectReader{T}"/>

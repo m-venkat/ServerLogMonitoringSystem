@@ -18,9 +18,9 @@ namespace CsvReadWriteUtility.Parser
     /// Class responsible for adding Mapping between object property and CSV column name
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public  class CsvToObjectMapper<T>
+    public  class CsvToObjectMapper<T> : ICsvToObjectMapper<T>
     {
-        public Dictionary<string, CsvToObjectMap<T>> ObjectToCsvMapping { get; private set; } = new Dictionary<string, CsvToObjectMap<T>>();
+        public Dictionary<string, ICsvToObjectMap<T>> ObjectToCsvMapping { get; private set; } = new Dictionary<string, ICsvToObjectMap<T>>();
 
         
         /// <summary>
