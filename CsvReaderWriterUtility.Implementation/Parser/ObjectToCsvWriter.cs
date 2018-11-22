@@ -76,9 +76,9 @@ namespace CsvReadWriteUtility.Parser
         private bool MandatoryParameterCheck(IList<List<T>> groupedObjects,  ICsvToObjectMapper<T> mapper,string targetFolderPath, IFileService fileService)
         {
             if (groupedObjects == null )
-                throw new ArgumentNullException($"Constuctor parameter  groupedObjects cannot be blank");
+                throw new ArgumentNullException($"Constructor parameter  groupedObjects cannot be blank");
             if (mapper == null)
-                throw new ArgumentNullException($"Constuctor parameter mapper cannot be blank");
+                throw new ArgumentNullException($"Constructor parameter mapper cannot be blank");
             if (!fileService.DirectoryExists(targetFolderPath))
             {
                 fileService.CreateDirectory(targetFolderPath);

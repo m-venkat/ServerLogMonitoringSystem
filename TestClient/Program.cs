@@ -45,7 +45,7 @@ namespace TestClient
 
 
             Console.ReadKey();
-            
+
         }
 
         static void SlicePrint(IList<List<ServerLogFactGrowthInfo>> sliced)
@@ -63,11 +63,11 @@ namespace TestClient
         }
         static void WriteCsvFileFinally(List<ServerLogFileInfo> serverLogFileInfoList, List<ServerLogFactInfo> serverLogFactInfoList)
         {
-            ServerLogFactGrowthInfoGenerator slfg = new ServerLogFactGrowthInfoGenerator(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
+            ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo> slfg = new ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo>(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
             var sliced = slfg.GenerateSlicedList();
             SlicePrint(sliced);
             Console.Clear();
-            CsvToObjectMapper<ServerLogFactGrowthInfo> mapper = new CsvToObjectMapper<ServerLogFactGrowthInfo>();
+            ICsvToObjectMapper<ServerLogFactGrowthInfo> mapper = new CsvToObjectMapper<ServerLogFactGrowthInfo>();
             mapper.AddMap(t => t.FileId, "FileID");
             mapper.AddMap(t => t.FileName, "Name");
             mapper.AddMap(t => t.TimeStampFormatted, "Timestamp");
@@ -75,6 +75,8 @@ namespace TestClient
             mapper.AddMap(t => t.GrowthRateInBytesPerHour, "GrowthRateInBytesPerHour");
             ReflectionHelper<ServerLogFactGrowthInfo> rh = new ReflectionHelper<ServerLogFactGrowthInfo>();
             ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C:\Users\venkat\Documents\FinalCsvFiles\");
+            //ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C: \Users\muniyandiv\obj to csv\");
+
             objCsvWriter.Write();
         }
 
@@ -82,9 +84,9 @@ namespace TestClient
         {
             CsvToObjectMapper<ServerLogFileInfo> mapper = new CsvToObjectMapper<ServerLogFileInfo>();
             mapper.AddMap((t) => t.FileId, "ID");
-            mapper.AddMap(t=> t.FileName,"Name");
+            mapper.AddMap(t => t.FileName, "Name");
             CsvToObjectReader<ServerLogFileInfo> readCsv = new CsvToObjectReader<ServerLogFileInfo>(
-              filePath,new FileService(),mapper);
+              filePath, new FileService(), mapper);
             var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
             foreach (var error in errorsOccured)
             {
@@ -111,6 +113,6 @@ namespace TestClient
             return result;
         }
 
-      
+
     }
 }
