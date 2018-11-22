@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
-using CsvReadWriteUtility.Exceptions;
 
 
 namespace CsvReadWriteUtility.Parser
 {
-
-    public interface ICsvToObjectMap<T>
-    {
-        MemberExpression Property { get; set; }
-        String CsvColumnName { get; set; }
-    }
-
     /// <summary>
     /// Class responsible for adding Mapping between object selectedProperty and CSV column name
     /// </summary>

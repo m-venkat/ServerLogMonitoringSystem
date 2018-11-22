@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using CsvReadWriteUtility.Exceptions;
-using CsvReadWriteUtility.Parser;
-using CsvReadWriteUtility.Utils;
 using CsvReadWriteUtility.Utils;
 
 
 namespace CsvReadWriteUtility.Parser
 {
-    
+
     public class CsvToObjectReader<T> : ICsvToObjectReader<T>
     {
         #region Private Variables

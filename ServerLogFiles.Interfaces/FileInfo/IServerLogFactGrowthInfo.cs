@@ -8,7 +8,6 @@
     /// </summary>
     public interface IServerLogFactGrowthInfo : IServerLogFileInfo, IServerLogFactInfo
     {
-        double MilliSecondsSinceLastLogCreatedForThisFile { get; set; }
         double GrowthRateInBytesPerHour { get; set; }
         string TimeStampFormatted { get; }
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace CsvReadWriteUtility.Utils
+﻿namespace CsvReadWriteUtility.Utils
 {
     public interface IReflectedPropertyInfo
     {

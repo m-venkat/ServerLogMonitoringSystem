@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using CsvReadWriteUtility.Exceptions;
 
 
 namespace CsvReadWriteUtility.Parser
 {
-
-    public class CsvToObjectMap<T> : ICsvToObjectMap<T>
-    {
-        public MemberExpression Property { get; set; }
-        public String CsvColumnName { get; set; }
-    }
-
     /// <summary>
     /// Class responsible for specifying mapping between domain object selectedProperty and CSV column name.
     /// This mapper is used in both <see cref="CsvToObjectReader{T}"/> and in <see cref="ObjectToCsvWriter{T}"/>

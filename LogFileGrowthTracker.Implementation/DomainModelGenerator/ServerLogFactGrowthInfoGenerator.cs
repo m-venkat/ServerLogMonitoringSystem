@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using ServerLogGrowthTracker.FileInfo;
 
 namespace ServerLogGrowthTracker.DomainModelGenerator
@@ -108,7 +106,7 @@ namespace ServerLogGrowthTracker.DomainModelGenerator
                     double fileGrowthInBytes = record.SizeInBytes - prevRecord.SizeInBytes;
                     double milliSecondsSinceLastLogCreatedForThisFile =
                         record.TimeStamp.Subtract(prevRecord.TimeStamp).TotalMilliseconds;
-                    record.MilliSecondsSinceLastLogCreatedForThisFile = milliSecondsSinceLastLogCreatedForThisFile;
+                   // record.MilliSecondsSinceLastLogCreatedForThisFile = milliSecondsSinceLastLogCreatedForThisFile;
                     record.GrowthRateInBytesPerHour =
                         Math.Round(CalculateLogFileGrowthPerHourInBytes(milliSecondsSinceLastLogCreatedForThisFile,
                             fileGrowthInBytes), 1);

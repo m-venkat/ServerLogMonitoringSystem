@@ -1,6 +1,4 @@
-﻿using CsvReadWriteUtility.Utils;
-
-namespace CsvReadWriteUtility.Utils
+﻿namespace CsvReadWriteUtility.Utils
 {
     public class ReflectedPropertyInfo : IReflectedPropertyInfo
     {

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
-using CsvReadWriteUtility.Utils;
 using CsvReadWriteUtility.Utils;
 using ServerLogGrowthTracker.DomainModelGenerator;
 using ServerLogGrowthTracker.FileInfo;
@@ -55,7 +51,7 @@ namespace TestClient
                 foreach (var f in filegroup)
                 {
                     Console.WriteLine(
-                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.MilliSecondsSinceLastLogCreatedForThisFile}\t{f.GrowthRateInBytesPerHour}");
+                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.GrowthRateInBytesPerHour}");
                 }
                 Console.WriteLine("=============================================================================================");
                 Console.ReadKey();
