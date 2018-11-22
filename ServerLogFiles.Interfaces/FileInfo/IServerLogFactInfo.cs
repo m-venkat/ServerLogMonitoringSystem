@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ServerLogMonitorSystem.FileInfo
+namespace ServerLogGrowthTracker.FileInfo
 {
     /// <summary>
     /// Interface/Contract that defines the shape of FileStat.csv

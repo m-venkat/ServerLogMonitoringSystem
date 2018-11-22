@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>CsvReadWriteUtility</RootNamespace>
+    <RootNamespace>ServerLogGrowthTracker</RootNamespace>
+    <AssemblyName>ServerLogGrowthTracker.Implementation</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj" />
     <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj" />
   </ItemGroup>
 

@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj" />
-    <ProjectReference Include="..\LogFileGrowthTracker.Implementation\ServerLogMonitorSystem.Implementation.csproj" />
+    <ProjectReference Include="..\LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj" />
   </ItemGroup>
 
 </Project>

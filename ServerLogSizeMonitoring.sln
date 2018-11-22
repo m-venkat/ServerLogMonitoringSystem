@@ -3,22 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogMonitorSystem.Interface", "ServerLogFiles.Interfaces\ServerLogMonitorSystem.Interface.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Interface", "ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogMonitorSystem.Implementation", "LogFileGrowthTracker.Implementation\ServerLogMonitorSystem.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Implementation", "LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "TestClient\TestClient.csproj", "{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D35133EC-3B26-460E-83EF-8A088E961A8A}"
-	ProjectSection(SolutionItems) = preProject
-		refactoringNotes.txt = refactoringNotes.txt
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CsvReadWriteUtility", "CsvReadWriteUtility", "{B7712F0B-D89C-41A7-9E8B-068942BB18DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Implementation", "CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj", "{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Interface", "CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj", "{9AB07175-54AB-45C4-BF92-531CF2A169F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogGrowthTracker", "ServerLogGrowthTracker", "{FF7D4307-597C-4FE4-84DD-284501923DCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +48,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7} = {FF7D4307-597C-4FE4-84DD-284501923DCA}
+		{75811FDF-D126-45C0-98B5-BB6944A443C8} = {FF7D4307-597C-4FE4-84DD-284501923DCA}
 		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54} = {B7712F0B-D89C-41A7-9E8B-068942BB18DB}
 		{9AB07175-54AB-45C4-BF92-531CF2A169F5} = {B7712F0B-D89C-41A7-9E8B-068942BB18DB}
 	EndGlobalSection
