@@ -1,4 +1,8 @@
-﻿namespace CsvReadWriteUtility.Validations
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CsvReadWriteUtility.Validations
 {
     public interface IValidateCsvRead
     {

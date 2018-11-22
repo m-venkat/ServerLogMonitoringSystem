@@ -5,7 +5,7 @@ namespace CsvReadWriteUtility.Parser
 {
     public interface ICsvToObjectMap<T>
     {
-        MemberExpression Property { get; set; }
+        string PropertyName { get; set; }
         String CsvColumnName { get; set; }
     }
 }

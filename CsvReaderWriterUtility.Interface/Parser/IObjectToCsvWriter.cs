@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using CsvReadWriteUtility.Exceptions;
 
 namespace CsvReadWriteUtility.Parser
 {
-
+    
     /// <summary>
     /// Contract for the object that implements CSV to Object conversion logic.
     /// This Interface provides methods to extract data from CSV file and populate it with

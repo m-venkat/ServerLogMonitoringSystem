@@ -1,4 +1,6 @@
-﻿namespace ServerLogGrowthTracker.FileInfo
+﻿using System;
+
+namespace ServerLogGrowthTracker.FileInfo
 {
 
     /// <summary>
@@ -7,7 +9,7 @@
     /// FileId is defined in this interface because to avoid repeating this field in each
     /// other interface.  If we need to change the data type or associated logic, changes
     /// will go into this file.
-    /// </summary>
+   /// </summary>
     public class ServerLogFileId : IServerLogFileId
     {
         public uint FileId { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ServerLogGrowthTracker.FileInfo
 {
@@ -10,16 +11,20 @@ namespace ServerLogGrowthTracker.FileInfo
     /// </summary>
     public class ServerLogFactGrowthInfo : IServerLogFactGrowthInfo
     {
+        private double _growthInHour = 0;
         public uint FileId { get; set; }
         public string FileName { get; set; }
         public DateTime TimeStamp { get ; set; }
-        //This is additional property exposed to format the date we expected to persist in csv file
-        //This additional property can be avoided by using attribute decorator on top of TimeStamp 
-        //attribute in future
         public string TimeStampFormatted => TimeStamp.ToString("yyyy-MM-dd HH:mm:ss.fff");
         public double SizeInBytes { get; set; }
         public double GrowthRateInBytesPerHour { get; set; }
-       
+        
+        public double MilliSecondsSinceLastLogCreatedForThisFile { get; set; }
+
+        public IServerLogFactGrowthInfo GetInstance()
+        {
+            return new ServerLogFactGrowthInfo();
+        }
 
     }
 }

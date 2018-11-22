@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Text;
 using CsvReadWriteUtility.Exceptions;
 
 
@@ -41,7 +42,7 @@ namespace CsvReadWriteUtility.Parser
             MemberExpression selectedPropertyAsExpresion = ((MemberExpression)selectedProperty.Body);
             var name = selectedPropertyAsExpresion.Member.Name;
             ObjectToCsvMapping.Remove(name);
-            ObjectToCsvMapping.Add(name, new CsvToObjectMap<T>() { CsvColumnName = csvColumnName, Property = selectedPropertyAsExpresion });
+            ObjectToCsvMapping.Add(name, new CsvToObjectMap<T>() { CsvColumnName = csvColumnName, PropertyName = name });
         }
 
     }

@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
+using CsvReadWriteUtility.Utils;
 using CsvReadWriteUtility.Utils;
 using ServerLogGrowthTracker.DomainModelGenerator;
 using ServerLogGrowthTracker.FileInfo;
@@ -51,7 +55,7 @@ namespace TestClient
                 foreach (var f in filegroup)
                 {
                     Console.WriteLine(
-                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.GrowthRateInBytesPerHour}");
+                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.MilliSecondsSinceLastLogCreatedForThisFile}\t{f.GrowthRateInBytesPerHour}");
                 }
                 Console.WriteLine("=============================================================================================");
                 Console.ReadKey();
@@ -70,7 +74,11 @@ namespace TestClient
             mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
             mapper.AddMap(t => t.GrowthRateInBytesPerHour, "GrowthRateInBytesPerHour");
             ReflectionHelper<ServerLogFactGrowthInfo> rh = new ReflectionHelper<ServerLogFactGrowthInfo>();
-            ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C:\Users\venkat\Documents\FinalCsvFiles\");
+
+
+            List<string> fileNames = sliced.Select(list => list?.FirstOrDefault()?.FileId + ".csv").ToList();
+
+            ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C:\Users\venkat\Documents\FinalCsvFiles\", fileNames);
             //ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C: \Users\muniyandiv\obj to csv\");
 
             objCsvWriter.Write();

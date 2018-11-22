@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Text;
+using CsvReadWriteUtility.Exceptions;
 
 
 namespace CsvReadWriteUtility.Parser
@@ -12,6 +14,8 @@ namespace CsvReadWriteUtility.Parser
     public interface ICsvToObjectMapper<T>
     {
         Dictionary<string, ICsvToObjectMap<T>> ObjectToCsvMapping { get; }
+        
+        
         /// <summary>
         /// This is the Mapper method that maps Domain object properties with Csv file column.
         /// Instance of this class needs to be passed in to the constructor of <see cref="ICsvToObjectReader{T}"/>

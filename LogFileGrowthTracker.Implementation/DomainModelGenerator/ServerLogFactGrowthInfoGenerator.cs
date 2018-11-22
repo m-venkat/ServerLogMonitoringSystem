@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 using ServerLogGrowthTracker.FileInfo;
 
 namespace ServerLogGrowthTracker.DomainModelGenerator
@@ -74,16 +76,14 @@ namespace ServerLogGrowthTracker.DomainModelGenerator
         }
 
         /// <summary>
-        /// Generates the Sliced DataSet by given Key column/property (group by)
+        /// Slice all the records by grouping on a particular column (e.g. File ID ) and creates multiple data sets
+        /// Each data set will be persisted/saved to CSV file
         /// </summary>
         /// <returns>IList<IList{T}></IList></returns>
-        //public IList<List<ServerLogFactGrowthInfo>> GenerateSlicedList<TKey>(
-        //    Expression<Func<ServerLogFactGrowthInfo, TKey>> propertyToSlice)
-
         public IList<List<T>> GenerateSlicedList()
         {
             _serverLogFactGrowthInfoList = JoinFileAndFactDataSetHorizontally();
-            _serverLogFactGrowthInfoList = CalculateAndAdd_MinutesSinceLastLogCreatedForThisFile_GrowthRateInBytesPerHour(_serverLogFactGrowthInfoList);
+            _serverLogFactGrowthInfoList = CalculateAndSetGrowthRateInBytesPerHour(_serverLogFactGrowthInfoList);
             var res = _serverLogFactGrowthInfoList.GroupBy(t => t.FileId).Select(grp => grp.ToList()).ToList();
             foreach (var list in res)
                 list.RemoveAt(0);//Remove the first Element [First element will not have previous entry to compare growth]
@@ -92,24 +92,18 @@ namespace ServerLogGrowthTracker.DomainModelGenerator
 
 
         /// <summary>
-        /// Joins the File and Fact DataSet and produces a result data set that includes columns from
-        /// both datasets and also an additional calculated column
+        /// For each record in the list it calculates the file growth rate and sets it to the appropriate property
         /// </summary>
-        /// <returns></returns>
-        internal IList<T> CalculateAndAdd_MinutesSinceLastLogCreatedForThisFile_GrowthRateInBytesPerHour(IList<T> growthInfoDataSet)
+        /// <returns>IList{T}</returns>
+        internal IList<T> CalculateAndSetGrowthRateInBytesPerHour(IList<T> growthInfoDataSet)
         {
             IServerLogFactGrowthInfo prevRecord = null;
             foreach (var record in growthInfoDataSet)
             {
                 if (prevRecord != null)
                 {
-                    double fileGrowthInBytes = record.SizeInBytes - prevRecord.SizeInBytes;
-                    double milliSecondsSinceLastLogCreatedForThisFile =
-                        record.TimeStamp.Subtract(prevRecord.TimeStamp).TotalMilliseconds;
-                   // record.MilliSecondsSinceLastLogCreatedForThisFile = milliSecondsSinceLastLogCreatedForThisFile;
-                    record.GrowthRateInBytesPerHour =
-                        Math.Round(CalculateLogFileGrowthPerHourInBytes(milliSecondsSinceLastLogCreatedForThisFile,
-                            fileGrowthInBytes), 1);
+                    record.GrowthRateInBytesPerHour = Math.Round(CalculateLogFileGrowthPerHourInBytes(prevRecord.SizeInBytes,
+                        record.SizeInBytes, prevRecord.TimeStamp, record.TimeStamp),1);
                 }
                 prevRecord = record;
             }
@@ -119,14 +113,24 @@ namespace ServerLogGrowthTracker.DomainModelGenerator
 
 
         /// <summary>
-        /// Helper/formula to calculate the file growthrate per hour
+        /// Helper function to calculate the file growth rate based on the timestamp and file size
         /// </summary>
-        /// <param name="milliSecondsSinceLastLogCreatedForThisFile">Time stamp difference in milliseconds between two files</param>
-        /// <param name="fileGrowthInBytes">File size grown in bytes</param>
+        /// <param name="lastFileSize"></param>
+        /// <param name="currentFileSize"></param>
+        /// <param name="lastTimeStamp"></param>
+        /// <param name="currentTimeStamp"></param>
         /// <returns></returns>
-        internal double CalculateLogFileGrowthPerHourInBytes(double milliSecondsSinceLastLogCreatedForThisFile,
-            double fileGrowthInBytes)
+        internal double CalculateLogFileGrowthPerHourInBytes(double lastFileSize, double currentFileSize,DateTime lastTimeStamp, DateTime currentTimeStamp)
         {
+            //If Current File size is less than or equal to last file size, it indicates no growth in file, hence return 0
+            if (currentFileSize <= lastFileSize) return 0;
+
+            double fileGrowthInBytes = currentFileSize - lastFileSize;
+            double milliSecondsSinceLastLogCreatedForThisFile =
+                currentTimeStamp.Subtract(lastTimeStamp).TotalMilliseconds;
+            
+            //If Current Timestamp is earlier than or equal to  last file timestamp, it indicates no growth in file, hence return 0
+            if (milliSecondsSinceLastLogCreatedForThisFile <= 0) return 0;//To Avoid divide by Zero error
 
             return (fileGrowthInBytes / milliSecondsSinceLastLogCreatedForThisFile) * MilliSecondsInOneHour;
         }

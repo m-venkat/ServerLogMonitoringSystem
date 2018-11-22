@@ -17,6 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Interfa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogGrowthTracker", "ServerLogGrowthTracker", "{FF7D4307-597C-4FE4-84DD-284501923DCA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{C641CA0D-C49A-4C40-B906-EAA7403D64D8}"
+	ProjectSection(SolutionItems) = preProject
+		readMe.txt = readMe.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

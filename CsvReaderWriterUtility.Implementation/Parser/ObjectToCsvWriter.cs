@@ -43,7 +43,7 @@ namespace CsvReadWriteUtility.Parser
         /// <param name="reflectionHelper">Helper class to reflect the object to retrieve metadata properties</param>
         /// <param name="fileService"></param>
         /// <param name="targetFolderPath">Folder path where the .csv files are expected to persist</param>
-        ///  <param name="fileNames">Optional field which specifies the list of file names, File Name to CSV will be matched based on Index.
+        ///  <param name="fileNames">List of .csv file names 
         /// If this parameter is not specified, it will use system timestamp as file name e.g. 21-11-2018 22:00:22.883
         ///  </param>
         public ObjectToCsvWriter(IList<List<T>> groupedObjects, 
@@ -51,7 +51,7 @@ namespace CsvReadWriteUtility.Parser
                 IReflectionHelper<T> reflectionHelper,
                 IFileService fileService,
                 string targetFolderPath, 
-                IList<string> fileNames  = null)
+                IList<string> fileNames  )
         {
             _groupedObjects = groupedObjects;
             _mapper = mapper;
@@ -79,9 +79,19 @@ namespace CsvReadWriteUtility.Parser
                 throw new ArgumentNullException($"Constructor parameter  groupedObjects cannot be blank");
             if (mapper == null)
                 throw new ArgumentNullException($"Constructor parameter mapper cannot be blank");
+            if(_fileNames.Count != groupedObjects.Count)
+                throw new CsvReadWriteException($"Number of file names supplied doesn't match with expected count.  Supplied count:{_fileNames.Count}, Expected count:{_groupedObjects.Count}", ErrorCodes.FileNameListCountNotMatches);
             if (!fileService.DirectoryExists(targetFolderPath))
             {
-                fileService.CreateDirectory(targetFolderPath);
+                try
+                {
+                    fileService.CreateDirectory(targetFolderPath);//Create if folder doesn't exists
+                    fileService.WriteAllText(targetFolderPath+@"\TestFileCreate.txt","sample Content");//Check if file can be created (to check if writable)
+                }
+                catch (Exception ex)
+                {
+                    throw new CsvReadWriteException($"Cannot create folder/file in the given path :{targetFolderPath}{Environment.NewLine}{ex.Message}{Environment.NewLine}{ex.StackTrace}", ErrorCodes.CannotWriteFileOrDirectory,ex.StackTrace);
+                }
             }
             return true;
         }
@@ -96,12 +106,12 @@ namespace CsvReadWriteUtility.Parser
             if (_groupedObjects.Count > 0)
             {
                 CreateFileContentForEachList();
-                WriteCsvFilesToDisk(_targetFolderPath);
+                WriteCsvFilesToDisk(_targetFolderPath,_fileNames);
             }
             return false;
         }
 
-        private void CreateFileContentForEachList()
+        internal void CreateFileContentForEachList()
         {
             foreach (var listObjectForOneFile in _groupedObjects)
             {
@@ -115,14 +125,14 @@ namespace CsvReadWriteUtility.Parser
         }
 
 
-        private void WriteCsvFilesToDisk(string targetFolderPath)
+        internal void WriteCsvFilesToDisk(string targetFolderPath, IList<string> fileNames)
         {
-            foreach (var fileContent in _csvFiles)
+            for (int fileCtr=0; fileCtr <  _csvFiles.Count;fileCtr++)
             {
                 var csvHeaderColumn = string.Empty;
                 var fullpath = _fileService.PathCombine(targetFolderPath,
-                    DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss_fff") + ".csv");
-                _fileService.WriteAllText(fullpath, GetCsvColumHeaderFromMapper()+fileContent);
+                    fileNames[fileCtr]);
+                _fileService.WriteAllText(fullpath, GetCsvColumHeaderFromMapper()+ _csvFiles[fileCtr]);
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿namespace CsvReadWriteUtility.Exceptions
 {
     /// <summary>
-    /// Error Codes, will grow based on scenarios.
+    /// Application level Error codes if client needs to handle it by catching and switching the errror codes.
     /// </summary>
     public enum ErrorCodes
     {
@@ -15,6 +15,8 @@
         ParameterNull = 106,
         ColumnCountMismatch = 107,
         DuplicateColumnNames = 108,
-        DataConversionError = 109
+        DataConversionError = 109,
+        CannotWriteFileOrDirectory=110,
+        FileNameListCountNotMatches =111
     }
 }
