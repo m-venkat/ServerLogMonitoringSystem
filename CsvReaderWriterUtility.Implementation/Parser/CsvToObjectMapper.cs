@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using CsvReadWriteUtility.Exceptions;
@@ -17,8 +18,8 @@ namespace CsvReadWriteUtility.Parser
     public class CsvToObjectMapper<T> : ICsvToObjectMapper<T>
     {
         /// <summary>
-        /// Public readonly selectedProperty to store the object to csv mapping
-        /// Refer to <see cref="CsvToObjectMap {T}"/> to see the schema of mapping between domain {T}
+        /// Public readonly selectedProperty to store the object to csv mapping. 
+        ///  Refer to <see cref="CsvToObjectMap {T}"/> to see the schema of mapping between domain {T} and csv column.
         /// Key of the dictionary will the object selectedProperty name as a string
         /// </summary>
         public Dictionary<string, ICsvToObjectMap<T>> ObjectToCsvMapping { get; private set; } = new Dictionary<string, ICsvToObjectMap<T>>();
@@ -36,11 +37,14 @@ namespace CsvReadWriteUtility.Parser
         {
             if (selectedProperty is null)
                 throw new CsvReadWriteException($"selectedProperty cannot be null", ErrorCodes.ParameterNull);
-            if (csvColumnName is null)
-                throw new CsvReadWriteException($"csvColumnName cannot be null", ErrorCodes.ParameterNull);
+            if (string.IsNullOrEmpty(csvColumnName.Trim()))
+                throw new CsvReadWriteException($"csvColumnName cannot be null or empty", ErrorCodes.ParameterNull);
+
+            if(ObjectToCsvMapping.Any(item => item.Value.CsvColumnName == csvColumnName.Trim()))
+                throw new CsvReadWriteException($"Csv column name '{csvColumnName}' already present in the mapping");
 
             MemberExpression selectedPropertyAsExpresion = ((MemberExpression)selectedProperty.Body);
-            var name = selectedPropertyAsExpresion.Member.Name;
+            var name = selectedPropertyAsExpresion.Member.Name.Trim();
             ObjectToCsvMapping.Remove(name);
             ObjectToCsvMapping.Add(name, new CsvToObjectMap<T>() { CsvColumnName = csvColumnName, PropertyName = name });
         }

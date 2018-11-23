@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
-using CsvReadWriteUtility.Utils;
 using CsvReadWriteUtility.Utils;
 using ServerLogGrowthTracker.DomainModelGenerator;
 using ServerLogGrowthTracker.FileInfo;
@@ -89,8 +85,11 @@ namespace TestClient
             CsvToObjectMapper<ServerLogFileInfo> mapper = new CsvToObjectMapper<ServerLogFileInfo>();
             mapper.AddMap((t) => t.FileId, "ID");
             mapper.AddMap(t => t.FileName, "Name");
+          
             CsvToObjectReader<ServerLogFileInfo> readCsv = new CsvToObjectReader<ServerLogFileInfo>(
               filePath, new FileService(), mapper);
+
+
             var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
             foreach (var error in errorsOccured)
             {

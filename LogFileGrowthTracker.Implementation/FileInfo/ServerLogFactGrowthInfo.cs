@@ -11,7 +11,6 @@ namespace ServerLogGrowthTracker.FileInfo
     /// </summary>
     public class ServerLogFactGrowthInfo : IServerLogFactGrowthInfo
     {
-        private double _growthInHour = 0;
         public uint FileId { get; set; }
         public string FileName { get; set; }
         public DateTime TimeStamp { get ; set; }
