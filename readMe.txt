@@ -1,5 +1,21 @@
 Pending
 ========
+Priority
+========
+1.Client App with command line arguments
+2.Unit Testing
+3.Dependency Injection
+4. Documentation
+
+
+Low Priority
+=============
+1. CSV Quote escaping
+2. "," escapping
+3. 
+
+
+
 1. Send the file list as paramter [Done]
 2. Check if the directory writable in constructor operator for CsvWriter [Done]
 3. csv constructing robust logic (comma and double quotes within the content)

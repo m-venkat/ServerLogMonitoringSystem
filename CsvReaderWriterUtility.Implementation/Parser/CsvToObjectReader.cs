@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Utils;
-
+[assembly: InternalsVisibleTo("ServerLogMonitoringSystem.Tests")]
 
 namespace CsvReadWriteUtility.Parser
 {
@@ -18,8 +19,6 @@ namespace CsvReadWriteUtility.Parser
         private readonly IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
         private readonly ICsvToObjectMapper<T> _mapper ;
         private readonly bool _ignoreDataConversionError ;
-        private readonly bool _headerPresentInFirstRow;
-        private readonly bool _mustMatchExpectedHeader;
         private readonly bool _ignoreColumnCountMismatch;
         private bool _ignoreEmptyFile;
         readonly Dictionary<string, string> _csvHeaderAndData = new Dictionary<string, string>();
@@ -48,8 +47,6 @@ namespace CsvReadWriteUtility.Parser
         /// <param name="pathToCsv">Complete file path to the .csv/txt file</param>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
         /// <param name="fileService">FileService for all file related operations<see cref="IFileService"/></param>
-        /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?[default=true]</param>
-        /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?[default=true]</param>
         /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
         /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?[default=true]</param>
         /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?[default=true]</param>
@@ -57,8 +54,6 @@ namespace CsvReadWriteUtility.Parser
                                 string pathToCsv,
                                 IFileService fileService,
                                 ICsvToObjectMapper<T> mapper,
-                                bool headerPresentInFirstRow = true,
-                                bool mustMatchExpectedHeader = true,
                                 bool ignoreEmptyFile =true,
                                 bool ignoreColumnCountMismatch = true,
                                 bool ignoreDataConversionError = true
@@ -69,13 +64,10 @@ namespace CsvReadWriteUtility.Parser
              */
             this._pathToCsv = pathToCsv;
             this._fileService = fileService;
-            this._mustMatchExpectedHeader = mustMatchExpectedHeader;
             this._mapper = mapper;
             this._ignoreDataConversionError = ignoreDataConversionError;
-            this._headerPresentInFirstRow = headerPresentInFirstRow;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
-            _mustMatchExpectedHeader = headerPresentInFirstRow != false && _mustMatchExpectedHeader;
            
         }
 
@@ -85,16 +77,12 @@ namespace CsvReadWriteUtility.Parser
         /// </summary>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
         /// <param name="fileContent">Content of .csv/txt file</param>
-        /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?[default=true]</param>
-        /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?[default=true]</param>
         /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
         /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?[default=true]</param>
         /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?[default=true]</param>
         public CsvToObjectReader(
             CsvToObjectMapper<T> mapper,
             string fileContent,
-            bool headerPresentInFirstRow = true,
-            bool mustMatchExpectedHeader = true,
             bool ignoreEmptyFile = true,
             bool ignoreColumnCountMismatch = true,
             bool ignoreDataConversionError = true
@@ -107,13 +95,10 @@ namespace CsvReadWriteUtility.Parser
                 new[] { Environment.NewLine },
                 StringSplitOptions.None
             );
-            this._mustMatchExpectedHeader = mustMatchExpectedHeader;
             this._mapper = mapper;
             this._ignoreDataConversionError = ignoreDataConversionError;
-            this._headerPresentInFirstRow = headerPresentInFirstRow;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
-            _mustMatchExpectedHeader = headerPresentInFirstRow != false && _mustMatchExpectedHeader;
 
         }
 
@@ -142,14 +127,10 @@ namespace CsvReadWriteUtility.Parser
              Initialize all the initial configuration settings
              */
             this._csvContentLines = fileContentLines;
-            this._mustMatchExpectedHeader = mustMatchExpectedHeader;
             this._mapper = mapper;
             this._ignoreDataConversionError = ignoreDataConversionError;
-            this._headerPresentInFirstRow = headerPresentInFirstRow;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
-            _mustMatchExpectedHeader = headerPresentInFirstRow != false && _mustMatchExpectedHeader;
-
         }
         #endregion
 
@@ -164,51 +145,63 @@ namespace CsvReadWriteUtility.Parser
             ErrorsOccured.Add(new ErrorCodeAndDescription() {ErrorCode = codes, ErrorDescription = description});
         }
 
+
+
         /// <summary>
-        /// Runs series of pre validations on the given CSV file before starting extracting data 
+        /// Runs series of pre validations on the given CSV file before starting extracting data
         /// </summary>
-        /// <param name="pathToCsv">Path to .csv/other allowed extension file</param>
-        private bool PreExtractValidation(string pathToCsv)
+        internal bool PreExtractValidation()
         {
-            if (pathToCsv == null && _csvContentLines.Length==0) {
+            bool validationFailed = false;
+
+            if (_pathToCsv == null && _csvContentLines.Length==0) {
                 AddError(ErrorCodes.NullPath,"Please supply the file content or provide the path to the file in constructor argument");
-                return false;
+                validationFailed = true;
             }
-            else if (!string.IsNullOrEmpty(pathToCsv) && !_fileService.FileExists(pathToCsv)) { 
-                AddError(ErrorCodes.PathNotExists,$"{pathToCsv}  does not exists");
-                return false;
+            if (!string.IsNullOrEmpty(_pathToCsv) && _fileService == null)
+            {
+                AddError(ErrorCodes.ParameterNull, $"Constructor parameter 'fileService' cannot be null");
+                validationFailed = true;
             }
-            else if (!string.IsNullOrEmpty(pathToCsv) && _fileService.PathGetExtension(pathToCsv).ToUpper() != ".CSV")
+
+            if (_mapper == null)
+            {
+                AddError(ErrorCodes.ParameterNull, $"Constructor parameter '_mapper' cannot be null");
+                validationFailed = true;
+            }
+            if (!string.IsNullOrEmpty(_pathToCsv) && _fileService != null && !_fileService.FileExists(_pathToCsv)) { 
+                AddError(ErrorCodes.PathNotExists,$"{_pathToCsv}  does not exists");
+                validationFailed = true;
+            }
+            if (!string.IsNullOrEmpty(_pathToCsv) && _fileService != null && _fileService.PathGetExtension(_pathToCsv).ToUpper() != ".CSV")
             { 
-                AddError(ErrorCodes.InvalidFileExtension,$"Invalid file extension {_fileService.PathGetExtension(pathToCsv)}. Only .csv is supported ");
-                return false;
+                AddError(ErrorCodes.InvalidFileExtension,$"Invalid file extension {_fileService.PathGetExtension(_pathToCsv)}. Only .csv is supported ");
+                validationFailed = true;
             }
-            try
-            {
-                if(_csvContentLines.Length == 0)
-                    _csvContentLines = _fileService.ReadAllLines(pathToCsv);
-            }
-            catch (Exception ex)
-            {
-                AddError(ErrorCodes.CannotReadFile,$"{pathToCsv} Cannot be read\n Exception:{ex.Message}\nStacktrace:{ex.StackTrace}");
-                return false;
-            }
-
-            if (
-                ((_csvContentLines.Length == 0 || 
-                 (_csvContentLines.Length ==1 && string.IsNullOrEmpty(_csvContentLines[0].Trim())))
-                 && _ignoreDataConversionError == false))
-            {
-                AddError(ErrorCodes.FileEmpty,"Csv file Content is empty");
-                return false;
-            }
-
-            if (_headerPresentInFirstRow)//Read the first row as Header
-            {
+            if (!validationFailed && _fileService != null && _mapper != null) { 
+                try
+                {
+                    if(_csvContentLines.Length == 0)
+                        _csvContentLines = _fileService.ReadAllLines(_pathToCsv);
+                }
+                catch (Exception ex)
+                {
+                    AddError(ErrorCodes.CannotReadFile,$"{_pathToCsv} Cannot be read\n Exception:{ex.Message}\nStacktrace:{ex.StackTrace}");
+                    return false;
+                }
+                if (
+                    ((_csvContentLines.Length == 0 ||
+                      (_csvContentLines.Length == 1 && string.IsNullOrEmpty(_csvContentLines[0].Trim())))
+                     && _ignoreDataConversionError == false))
+                {
+                    AddError(ErrorCodes.FileEmpty, "Csv file Content is empty");
+                    return false;
+                }
                 this.HeaderColumnNamesInCsvFile = SplitLineOfTextIntoCsv.Split(_csvContentLines[0]);
                 return IsCsvColumnNamesAsExpectedWithoutDuplicateColumnNames();//Throws Exception if csv columns are not as expected
             }
-            return true;
+
+            return false;
         }
 
         
@@ -218,7 +211,7 @@ namespace CsvReadWriteUtility.Parser
         /// <param name="lineOfRecordFromCsv">line of text from csv file</param>
         /// <param name="convertedObj">Converted domain object</param>
         /// <returns></returns>
-        private bool ConvertCsvRecordToObject(string lineOfRecordFromCsv, out T convertedObj)
+        internal bool ConvertCsvRecordToObject(string lineOfRecordFromCsv, out T convertedObj)
         {
             _csvHeaderAndData.Clear();
             string[] columnData = SplitLineOfTextIntoCsv.Split(lineOfRecordFromCsv);
@@ -240,19 +233,24 @@ namespace CsvReadWriteUtility.Parser
             foreach (PropertyInfo property in properties)
             {
                 //Get Each property name from list of properties
-                ICsvToObjectMap<T> map = this._mapper.ObjectToCsvMapping[property.Name];
-                string csvColumnNameFromMap = map.CsvColumnName;
-                string columnValue = _csvHeaderAndData[csvColumnNameFromMap];
-                try
+                if (this._mapper.ObjectToCsvMapping.ContainsKey(property.Name)) //Ignore the object properties if no mapping proeprties passed
                 {
-                    property.SetValue(domainObj, Convert.ChangeType(columnValue, property.PropertyType), null);
-                }
-                catch (Exception ex)//Handle data conversion failure(if csv data is not compatible with object datatype)
-                {
-                    convertedObj = default(T);
-                    this.ExtractFailedRows.Add(lineOfRecordFromCsv);
-                    AddError(ErrorCodes.DataConversionError, $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name}\n{ex.Message}\n{ex.StackTrace}");
-                    return false;
+                    ICsvToObjectMap<T> map = this._mapper.ObjectToCsvMapping[property.Name];
+                    string csvColumnNameFromMap = map.CsvColumnName;
+                    string columnValue = _csvHeaderAndData[csvColumnNameFromMap];
+                    try
+                    {
+                        property.SetValue(domainObj, Convert.ChangeType(columnValue, property.PropertyType), null);
+                    }
+                    catch (Exception ex
+                    ) //Handle data conversion failure(if csv data is not compatible with object datatype)
+                    {
+                        convertedObj = default(T);
+                        this.ExtractFailedRows.Add(lineOfRecordFromCsv);
+                        AddError(ErrorCodes.DataConversionError,
+                            $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name}\n{ex.Message}\n{ex.StackTrace}");
+                        return false;
+                    }
                 }
             }
 
@@ -265,41 +263,39 @@ namespace CsvReadWriteUtility.Parser
         /// Helper method to validate schema and duplicate column names
         /// </summary>
         /// <returns></returns>
-        private bool IsCsvColumnNamesAsExpectedWithoutDuplicateColumnNames()
+        internal bool IsCsvColumnNamesAsExpectedWithoutDuplicateColumnNames()
         {
-            if (_mustMatchExpectedHeader && _headerPresentInFirstRow)
+            bool columnsNotMatches = true;
+            foreach (var columnName in HeaderColumnNamesInCsvFile)
             {
-                bool columnsNotMatches = true;
-                foreach (var columnName in HeaderColumnNamesInCsvFile)
+                var obj = _mapper.ObjectToCsvMapping.Where(item =>
+                        item.Value.CsvColumnName.Trim().ToUpper() == columnName.Trim().ToUpper())
+                    .Select(e => (KeyValuePair<string, ICsvToObjectMap<T>>?)e)
+                    .FirstOrDefault();
+                if (obj == null)
                 {
-                    var obj = _mapper.ObjectToCsvMapping.Where(item =>
-                            item.Value.CsvColumnName.Trim().ToUpper() == columnName.Trim().ToUpper())
-                        .Select(e => (KeyValuePair<string, ICsvToObjectMap<T>>?)e)
-                        .FirstOrDefault();
-                    if (obj == null)
-                    {
-                        this.AddError(ErrorCodes.CsvColumnNameNotFound, $"column {columnName} not found in .csv file");
-                        columnsNotMatches = false;
-                    }
+                    this.AddError(ErrorCodes.CsvColumnNameNotFound, $"column {columnName} not found in .csv file");
+                    columnsNotMatches = false;
                 }
-                if (columnsNotMatches == false )
-                {
-                    return false;
-                }
-
-                var duplicateColumns = HeaderColumnNamesInCsvFile.Select(i => i.Trim().ToUpper()).GroupBy(word => word)
-                    .Where(x => x.Count() > 1).ToList(); ;
-                foreach (var duplicateColumn in duplicateColumns)
-                {
-                    this.AddError(ErrorCodes.DuplicateColumnNames, $"Column {duplicateColumn} duplicated");
-                }
-                if (duplicateColumns.Any())
-                {
-                    return false;
-                }
-
             }
+            if (columnsNotMatches == false)
+            {
+                return false;
+            }
+
+            var duplicateColumns = HeaderColumnNamesInCsvFile.Select(i => i.Trim().ToUpper()).GroupBy(word => word)
+                .Where(x => x.Count() > 1).ToList(); ;
+            foreach (var duplicateColumn in duplicateColumns)
+            {
+                this.AddError(ErrorCodes.DuplicateColumnNames, $"Column {duplicateColumn} duplicated");
+            }
+            if (duplicateColumns.Any())
+            {
+                return false;
+            }
+
             return true;
+
         }
         #endregion
 
@@ -320,12 +316,13 @@ namespace CsvReadWriteUtility.Parser
             errorsOccured = this.ErrorsOccured;
           
             List<T> convertedObjects = new List<T>();
-            if (PreExtractValidation(_pathToCsv))//If PreExtract Validation is successful, parse the file
+            if (PreExtractValidation())//If PreExtract Validation is successful, parse the file
             {
-                foreach (var line in _csvContentLines.Skip(_headerPresentInFirstRow ? 1 : 0))
+                foreach (var line in _csvContentLines.Skip(1))//Assume Always has header
                 {
                     if(ConvertCsvRecordToObject(line, out var convertedObj))
                         convertedObjects.Add(convertedObj);
+                  
                 }
             }
             else

@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ServerLogGrowthTracker.FileInfo;
 
+[assembly: InternalsVisibleTo("ServerLogMonitoringSystem.Tests")]
 namespace ServerLogGrowthTracker.DomainModelGenerator
 {
 
     /// <summary>
     /// This interface defines contracts for the class that Implements custom domain model generation.
-    /// Domain Model is a strongly typed C# class that representes a revcord in a csv file.
+    /// Domain Model is a strongly typed C# class that represents a record in a csv file.
     /// IList{DomainModel} will represent complete content/all lines of a csv file
     /// 
     /// Each column in csv file will map to a property of C# class (domain model)

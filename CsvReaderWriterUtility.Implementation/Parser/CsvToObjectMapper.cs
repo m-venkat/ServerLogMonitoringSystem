@@ -37,8 +37,8 @@ namespace CsvReadWriteUtility.Parser
         {
             if (selectedProperty is null)
                 throw new CsvReadWriteException($"selectedProperty cannot be null", ErrorCodes.ParameterNull);
-            if (string.IsNullOrEmpty(csvColumnName.Trim()))
-                throw new CsvReadWriteException($"csvColumnName cannot be null or empty", ErrorCodes.ParameterNull);
+            if (string.IsNullOrEmpty(csvColumnName?.Trim()))
+                throw new CsvReadWriteException($"Valid csv column name should be passed into AddMap method parameter", ErrorCodes.ParameterNull);
 
             if(ObjectToCsvMapping.Any(item => item.Value.CsvColumnName == csvColumnName.Trim()))
                 throw new CsvReadWriteException($"Csv column name '{csvColumnName}' already present in the mapping");

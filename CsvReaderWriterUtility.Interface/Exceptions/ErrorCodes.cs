@@ -17,6 +17,8 @@
         DuplicateColumnNames = 108,
         DataConversionError = 109,
         CannotWriteFileOrDirectory=110,
-        FileNameListCountNotMatches =111
+        FileNameListCountNotMatches =111,
+        CsvWithoutHeaderNotSupported = 112,
+        CsvHeaderMustMatchWithMapping = 113
     }
 }
