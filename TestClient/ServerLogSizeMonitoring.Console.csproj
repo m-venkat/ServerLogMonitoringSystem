@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj" />
-    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj" />
+    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Abstractions.csproj" />
     <ProjectReference Include="..\LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj" />
-    <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj" />
+    <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

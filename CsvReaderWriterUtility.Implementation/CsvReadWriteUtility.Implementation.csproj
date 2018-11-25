@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj" />
-    <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj" />
+    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Abstractions.csproj" />
+    <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

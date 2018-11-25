@@ -34,6 +34,8 @@ namespace ServerLogSizeMonitoring.Console
             List<ServerLogFileInfo> serverLogFileInfoList = GetServerLogFileInfo();//Get the files.csv as cv collection
             List<ServerLogFactInfo> serverLogFactInfoList = GetServerLogFileFactInfo();// Get the file status.cs as collection
             WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);//Write the final sliced data sets as csv to file
+
+            System.Console.WriteLine("\n\nRefer to the log folder for more details. ");
             System.Console.WriteLine("\n\nPress any key to exit");
             System.Console.ReadKey();
             Environment.Exit(0);

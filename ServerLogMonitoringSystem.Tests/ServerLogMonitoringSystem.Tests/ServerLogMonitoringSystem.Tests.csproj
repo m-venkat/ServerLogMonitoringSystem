@@ -118,17 +118,17 @@
       <Project>{e25d1a6f-1dbe-4dad-b5fd-3e32384e9d54}</Project>
       <Name>CsvReadWriteUtility.Implementation</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj">
+    <ProjectReference Include="..\..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Abstractions.csproj">
       <Project>{9ab07175-54ab-45c4-bf92-531cf2a169f5}</Project>
-      <Name>CsvReadWriteUtility.Interface</Name>
+      <Name>CsvReadWriteUtility.Abstractions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj">
       <Project>{75811fdf-d126-45c0-98b5-bb6944a443c8}</Project>
       <Name>ServerLogGrowthTracker.Implementation</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj">
+    <ProjectReference Include="..\..\ServerLogFiles.Interfaces\ServerLogGrowthTracker.Abstractions.csproj">
       <Project>{e85b30d4-8dce-4720-8152-fcc77dcb51c7}</Project>
-      <Name>ServerLogGrowthTracker.Interface</Name>
+      <Name>ServerLogGrowthTracker.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

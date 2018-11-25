@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Interface", "ServerLogFiles.Interfaces\ServerLogGrowthTracker.Interface.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Abstractions", "ServerLogFiles.Interfaces\ServerLogGrowthTracker.Abstractions.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Implementation", "LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
 EndProject
@@ -13,13 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CsvReadWriteUtility", "CsvR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Implementation", "CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj", "{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Interface", "CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj", "{9AB07175-54AB-45C4-BF92-531CF2A169F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Abstractions", "CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Abstractions.csproj", "{9AB07175-54AB-45C4-BF92-531CF2A169F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogGrowthTracker", "ServerLogGrowthTracker", "{FF7D4307-597C-4FE4-84DD-284501923DCA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{C641CA0D-C49A-4C40-B906-EAA7403D64D8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{C641CA0D-C49A-4C40-B906-EAA7403D64D8}"
 	ProjectSection(SolutionItems) = preProject
-		readMe.txt = readMe.txt
+		G:\Video Blog\Solution Details.docx = G:\Video Blog\Solution Details.docx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogSizeMonitoring.Tests", "ServerLogSizeMonitoring.Tests", "{C2B2BD5C-AC6A-4458-A03B-8097FF164C4E}"
