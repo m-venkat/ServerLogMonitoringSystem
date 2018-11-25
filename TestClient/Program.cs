@@ -31,9 +31,9 @@ namespace ServerLogSizeMonitoring.Console
           
             LoggerFactory.AddFile("Logs/ServerLogMonitoringLog-{Date}.txt");
             Logger = LoggerFactory.CreateLogger<Program>();
-            List<ServerLogFileInfo> serverLogFileInfoList = GetServerLogFileInfo();
-            List<ServerLogFactInfo> serverLogFactInfoList = GetServerLogFileFactInfo();
-            WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);
+            List<ServerLogFileInfo> serverLogFileInfoList = GetServerLogFileInfo();//Get the files.csv as cv collection
+            List<ServerLogFactInfo> serverLogFactInfoList = GetServerLogFileFactInfo();// Get the file status.cs as collection
+            WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);//Write the final sliced data sets as csv to file
             System.Console.WriteLine("\n\nPress any key to exit");
             System.Console.ReadKey();
             Environment.Exit(0);
