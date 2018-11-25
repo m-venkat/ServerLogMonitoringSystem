@@ -88,10 +88,9 @@ namespace ServerLogSizeMonitoring.Console
             mapper.AddMap((t) => t.FileId, "ID");
             mapper.AddMap(t => t.FileName, "Name");
             List<ServerLogFileInfo> result = new List<ServerLogFileInfo>();
-            CsvToObjectReader<ServerLogFileInfo> readCsv;
             try
             {
-                readCsv = new CsvToObjectReader<ServerLogFileInfo>(
+                var readCsv = new CsvToObjectReader<ServerLogFileInfo>(
                     Parameters.FilePath, new FileService(), mapper, LoggerFactory);
                 PrintHelper.WriteToConsoleAndLog("CsvToObjectReader instance constructed", true, false);
                 var res = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus);
