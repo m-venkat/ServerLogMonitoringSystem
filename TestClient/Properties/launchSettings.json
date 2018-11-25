@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ServerLogSizeMonitoring.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "-filepath \"C:\\Temp\\Files.csv\" -factfilepath \"C:\\Temp\\FileStats.csv\" -outputdir \"C:\\Temp\\Outputs\""
+    }
+  }
+}

@@ -19,6 +19,8 @@
         CannotWriteFileOrDirectory=110,
         FileNameListCountNotMatches =111,
         CsvWithoutHeaderNotSupported = 112,
-        CsvHeaderMustMatchWithMapping = 113
+        CsvHeaderMustMatchWithMapping = 113,
+        CannotOverWrite =114,
+        ObjectToCsvConvertionError=115
     }
 }

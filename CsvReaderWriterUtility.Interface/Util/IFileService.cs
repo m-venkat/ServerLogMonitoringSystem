@@ -16,5 +16,6 @@ namespace CsvReadWriteUtility.Utils
         string[] ReadAllLines(string path);
         string[] ReadAllText(string path);
         string PathGetExtension(string pathToCsv);
+        void DeleteFile(string s);
     }
 }

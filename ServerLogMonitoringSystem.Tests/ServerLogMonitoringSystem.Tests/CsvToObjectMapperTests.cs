@@ -6,7 +6,7 @@ using CsvReadWriteUtility.Parser;
 using FluentAssertions;
 using ServerLogGrowthTracker.FileInfo;
 using Xunit;
-
+using Microsoft.Extensions.Logging;
 //https://fluentassertions.com/documentation/ [Quick reference]
 namespace ServerLogMonitoringSystem.Tests
 {

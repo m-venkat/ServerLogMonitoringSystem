@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace CsvReadWriteUtility.Parser
 {
@@ -22,6 +23,7 @@ namespace CsvReadWriteUtility.Parser
         private readonly IList<List<T>> _groupedObjects;
         private readonly ICsvToObjectMapper<T> _mapper;
         private readonly IReflectionHelper<T> _reflectionHelper;
+        private readonly ILogger<ObjectToCsvWriter<T>> _logger;
         private readonly IFileService _fileService;
         private readonly string _targetFolderPath;
         private readonly IList<string> _fileNames;
@@ -40,6 +42,7 @@ namespace CsvReadWriteUtility.Parser
         ///  </summary>
         ///  <param name="groupedObjects">List of Lists to serialize to csv File</param>
         ///  <param name="mapper">Object to .csv Mapper</param>
+        /// <param name="loggerFactory"></param>
         /// <param name="reflectionHelper">Helper class to reflect the object to retrieve metadata properties</param>
         /// <param name="fileService"></param>
         /// <param name="targetFolderPath">Folder path where the .csv files are expected to persist</param>
@@ -47,7 +50,8 @@ namespace CsvReadWriteUtility.Parser
         /// If this parameter is not specified, it will use system timestamp as file name e.g. 21-11-2018 22:00:22.883
         ///  </param>
         public ObjectToCsvWriter(IList<List<T>> groupedObjects, 
-                ICsvToObjectMapper<T> mapper, 
+                ICsvToObjectMapper<T> mapper,
+                ILoggerFactory loggerFactory,
                 IReflectionHelper<T> reflectionHelper,
                 IFileService fileService,
                 string targetFolderPath, 
@@ -59,6 +63,7 @@ namespace CsvReadWriteUtility.Parser
             _fileService = fileService;
             _targetFolderPath = targetFolderPath;
             _fileNames = fileNames;
+            _logger = loggerFactory.CreateLogger<ObjectToCsvWriter<T>>();
             MandatoryParameterCheck(groupedObjects, mapper,targetFolderPath,_fileService);
             ExtractHeaderFromMapperFromMapper();
         }
@@ -73,24 +78,33 @@ namespace CsvReadWriteUtility.Parser
             }
         }
 
+        private void LogAndThrowError(string error, ErrorCodes errorCode)
+        {
+            _logger.LogError(error);
+            throw new CsvReadWriteException(error, errorCode);
+
+        }
+
         private bool MandatoryParameterCheck(IList<List<T>> groupedObjects,  ICsvToObjectMapper<T> mapper,string targetFolderPath, IFileService fileService)
         {
             if (groupedObjects == null )
-                throw new ArgumentNullException($"Constructor parameter  groupedObjects cannot be blank");
+                LogAndThrowError($"Constructor parameter  groupedObjects cannot be blank",ErrorCodes.ParameterNull);
             if (mapper == null)
-                throw new ArgumentNullException($"Constructor parameter mapper cannot be blank");
-            if(_fileNames.Count != groupedObjects.Count)
-                throw new CsvReadWriteException($"Number of file names supplied doesn't match with expected count.  Supplied count:{_fileNames.Count}, Expected count:{_groupedObjects.Count}", ErrorCodes.FileNameListCountNotMatches);
+                LogAndThrowError($"Constructor parameter mapper cannot be blank", ErrorCodes.ParameterNull);
+            if (_fileNames.Count != groupedObjects?.Count)
+                LogAndThrowError($"Number of file names supplied doesn't match with expected count.  Supplied count:{_fileNames.Count}, Expected count:{_groupedObjects.Count}", ErrorCodes.FileNameListCountNotMatches);
             if (!fileService.DirectoryExists(targetFolderPath))
             {
                 try
                 {
                     fileService.CreateDirectory(targetFolderPath);//Create if folder doesn't exists
                     fileService.WriteAllText(targetFolderPath+@"\TestFileCreate.txt","sample Content");//Check if file can be created (to check if writable)
+                    fileService.DeleteFile(targetFolderPath + @"\TestFileCreate.txt");
                 }
                 catch (Exception ex)
                 {
-                    throw new CsvReadWriteException($"Cannot create folder/file in the given path :{targetFolderPath}{Environment.NewLine}{ex.Message}{Environment.NewLine}{ex.StackTrace}", ErrorCodes.CannotWriteFileOrDirectory,ex.StackTrace);
+                    LogAndThrowError($"Cannot create folder/file in the given path :{targetFolderPath}",ErrorCodes.CannotWriteFileOrDirectory);
+                    _logger.LogError($"{ex.Message}\n{ex.StackTrace}");
                 }
             }
             return true;
@@ -101,12 +115,12 @@ namespace CsvReadWriteUtility.Parser
         /// Writes the object to CSV File
         /// </summary>
         /// <returns></returns>
-        public bool Write()
+        public bool Write(bool overWrite = true)
         {
             if (_groupedObjects.Count > 0)
             {
                 CreateFileContentForEachList();
-                WriteCsvFilesToDisk(_targetFolderPath,_fileNames);
+                WriteCsvFilesToDisk(_targetFolderPath,_fileNames,overWrite);
             }
             return false;
         }
@@ -120,36 +134,54 @@ namespace CsvReadWriteUtility.Parser
                 {
                     csvDataRows.Append(GetCsvStringFromT(recordOfT));
                 }
+                
                 _csvFiles.Add(csvDataRows.ToString());
             }
         }
 
 
-        internal void WriteCsvFilesToDisk(string targetFolderPath, IList<string> fileNames)
+        internal void WriteCsvFilesToDisk(string targetFolderPath, IList<string> fileNames, bool overWrite = true)
         {
             for (int fileCtr=0; fileCtr <  _csvFiles.Count;fileCtr++)
             {
                 var csvHeaderColumn = string.Empty;
                 var fullpath = _fileService.PathCombine(targetFolderPath,
                     fileNames[fileCtr]);
+                if (!overWrite)
+                {
+                    if (_fileService.FileExists(fullpath))
+                    {
+                        LogAndThrowError($"File already exists, cannot overwrite.  Set Overwrite parameter to false",ErrorCodes.CannotOverWrite);
+                    }
+                }
                 _fileService.WriteAllText(fullpath, GetCsvColumHeaderFromMapper()+ _csvFiles[fileCtr]);
+                _logger.LogInformation($"File Created {fullpath}");
             }
         }
 
         private string GetCsvStringFromT(T t)
         {
             StringBuilder csvStringBuilder = new StringBuilder(string.Empty);
-            var reflectedList = _reflectionHelper.GetReflectedPropertyInfo(t);
-            /*Iterate the column from the Mapper and find the matching columns from the current row and extract only the columns specifed
-             in mapper and ignore other columns*/
-            bool firstColumn = true;
-            foreach (string propName in PropertyNameToPersist)
+            try
             {
-                IReflectedPropertyInfo propInfo =
-                    reflectedList.FirstOrDefault(i => i.PropertyName.Trim().ToUpper() == propName.Trim().ToUpper());
-                string columnData = GetCsvColumnDataFromPropertyInfo(propInfo);
-                csvStringBuilder.Append(firstColumn ? columnData : "," + columnData);
-                firstColumn = false;
+               
+                var reflectedList = _reflectionHelper.GetReflectedPropertyInfo(t);
+                /*Iterate the column from the Mapper and find the matching columns from the current row and extract only the columns specifed
+                 in mapper and ignore other columns*/
+                bool firstColumn = true;
+                foreach (string propName in PropertyNameToPersist)
+                {
+                    IReflectedPropertyInfo propInfo =
+                        reflectedList.FirstOrDefault(i => i.PropertyName.Trim().ToUpper() == propName.Trim().ToUpper());
+                    string columnData = GetCsvColumnDataFromPropertyInfo(propInfo);
+                    csvStringBuilder.Append(firstColumn ? columnData : "," + columnData);
+                    firstColumn = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Some error occured in transforming an object into CSV.n{ex.Message}\n{ex.StackTrace}");
+                LogAndThrowError($"Some error occured in transforming an object into CSV",ErrorCodes.ObjectToCsvConvertionError);
             }
 
             return csvStringBuilder.ToString() + Environment.NewLine;
@@ -162,34 +194,35 @@ namespace CsvReadWriteUtility.Parser
             foreach (var header in HeaderColumnNamesInCsvFile)
             {
                 csvHeaderColumn += firstColumn == false ? "," : "";
-                csvHeaderColumn += "\"" + header + "\"";
+                csvHeaderColumn += "\"" + header.Replace("\"", "\"\"") + "\"";
                 firstColumn = false;
             }
             return csvHeaderColumn += Environment.NewLine;
         }
+        /// <summary>
+        /// Helper reflection function to extract text csv copatible field from a property
+        /// </summary>
+        /// <param name="propInfo"></param>
+        /// <returns></returns>
         private string GetCsvColumnDataFromPropertyInfo(IReflectedPropertyInfo propInfo)
         {
             if ((propInfo.PropertyDataType.ToUpper().Contains("STRING")) ||
                 propInfo.PropertyDataType.ToUpper().Contains("DATE"))
             {
-                return $"\"" + propInfo.PropertyValue.Replace("\"", "~!@") + "\"".Replace("~!@", "\"");
+                if (propInfo.PropertyValue != null)
+                    //escape double quotes to double, double quotes
+                    return $"\"" + propInfo.PropertyValue.Replace("\"", "\"\"") + "\"";
             }
             else
             {
-                return propInfo.PropertyValue.Trim();
+                return propInfo.PropertyValue?.Trim();
             }
-            
+
+            return string.Empty;
+
         }
 
-        /// <summary>
-        /// Writes the object to CSV File, Overwrite if the file already Exists
-        /// </summary>
-        /// <returns></returns>
-        public bool Write(bool overwrite)
-        {
-            Write();
-            return false;
-        }
+       
 
     }
 }

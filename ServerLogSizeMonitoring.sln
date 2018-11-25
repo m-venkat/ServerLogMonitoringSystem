@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Inte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Implementation", "LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "TestClient\TestClient.csproj", "{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogSizeMonitoring.Console", "TestClient\ServerLogSizeMonitoring.Console.csproj", "{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CsvReadWriteUtility", "CsvReadWriteUtility", "{B7712F0B-D89C-41A7-9E8B-068942BB18DB}"
 EndProject

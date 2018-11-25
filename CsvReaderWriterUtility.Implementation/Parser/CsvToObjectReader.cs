@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Utils;
+using Microsoft.Extensions.Logging;
+
 [assembly: InternalsVisibleTo("ServerLogMonitoringSystem.Tests")]
 
 namespace CsvReadWriteUtility.Parser
@@ -15,6 +17,7 @@ namespace CsvReadWriteUtility.Parser
         #region Private Variables
         private readonly string _pathToCsv;
         private readonly IFileService _fileService;
+        private readonly ILogger<CsvToObjectReader<T>> _logger;
         private string[] _csvContentLines = new string[] { };
         private readonly IList<ErrorCodes> _validationErrors = new List<ErrorCodes>();
         private readonly ICsvToObjectMapper<T> _mapper ;
@@ -40,6 +43,7 @@ namespace CsvReadWriteUtility.Parser
         #endregion
 
         #region Constructors
+
         /// <summary>
         /// Constructs the Csv to Object reader instance.  Most of the parameters are optional parameters
         /// with default value.  Override the default value with the custom values
@@ -47,6 +51,7 @@ namespace CsvReadWriteUtility.Parser
         /// <param name="pathToCsv">Complete file path to the .csv/txt file</param>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
         /// <param name="fileService">FileService for all file related operations<see cref="IFileService"/></param>
+        /// <param name="loggerFactory">Logger factory</param>
         /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
         /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?[default=true]</param>
         /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?[default=true]</param>
@@ -54,6 +59,7 @@ namespace CsvReadWriteUtility.Parser
                                 string pathToCsv,
                                 IFileService fileService,
                                 ICsvToObjectMapper<T> mapper,
+                                ILoggerFactory loggerFactory,
                                 bool ignoreEmptyFile =true,
                                 bool ignoreColumnCountMismatch = true,
                                 bool ignoreDataConversionError = true
@@ -68,7 +74,8 @@ namespace CsvReadWriteUtility.Parser
             this._ignoreDataConversionError = ignoreDataConversionError;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
-           
+            this._logger = loggerFactory.CreateLogger<CsvToObjectReader<T>>();
+
         }
 
         /// <summary>
@@ -76,12 +83,14 @@ namespace CsvReadWriteUtility.Parser
         /// with default value.  Override the default value with the custom values
         /// </summary>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
+        /// <param name="loggerFactory"></param>
         /// <param name="fileContent">Content of .csv/txt file</param>
         /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
         /// <param name="ignoreColumnCountMismatch">Should ignore the additional columns if present and not report error?[default=true]</param>
         /// <param name="ignoreDataConversionError">Should ignore the rows failing because of schema/data conversion issues?[default=true]</param>
         public CsvToObjectReader(
             CsvToObjectMapper<T> mapper,
+            ILoggerFactory loggerFactory,
             string fileContent,
             bool ignoreEmptyFile = true,
             bool ignoreColumnCountMismatch = true,
@@ -99,6 +108,7 @@ namespace CsvReadWriteUtility.Parser
             this._ignoreDataConversionError = ignoreDataConversionError;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
+            this._logger = loggerFactory.CreateLogger<CsvToObjectReader<T>>();
 
         }
 
@@ -108,6 +118,7 @@ namespace CsvReadWriteUtility.Parser
         /// </summary>
         /// <param name="fileContentLines">Content of .csv/txt file in a string array</param>
         /// <param name="mapper">instance of Csv File to Domain object mapper <see cref="CsvToObjectMapper{T}"/></param>
+        /// <param name="loggerFactory"></param>
         /// <param name="headerPresentInFirstRow">Does this csv/text file has header row in first line?[default=true]</param>
         /// <param name="mustMatchExpectedHeader">Should this csv file headers match with the header provided in mapper?[default=true]</param>
         /// <param name="ignoreEmptyFile">should empty file be ignored and not marked as error?[default=true]</param>
@@ -116,6 +127,7 @@ namespace CsvReadWriteUtility.Parser
         public CsvToObjectReader(
             string[] fileContentLines,
             CsvToObjectMapper<T> mapper,
+            ILoggerFactory loggerFactory,
             bool headerPresentInFirstRow = true,
             bool mustMatchExpectedHeader = true,
             bool ignoreEmptyFile = true,
@@ -131,6 +143,7 @@ namespace CsvReadWriteUtility.Parser
             this._ignoreDataConversionError = ignoreDataConversionError;
             this._ignoreEmptyFile = ignoreEmptyFile;
             this._ignoreColumnCountMismatch = ignoreColumnCountMismatch;
+            this._logger = loggerFactory.CreateLogger<CsvToObjectReader<T>>();
         }
         #endregion
 
@@ -143,6 +156,7 @@ namespace CsvReadWriteUtility.Parser
         private void AddError(ErrorCodes codes, string description )
         {
             ErrorsOccured.Add(new ErrorCodeAndDescription() {ErrorCode = codes, ErrorDescription = description});
+            _logger.LogError($"{codes}-{description}");
         }
 
 
@@ -189,12 +203,15 @@ namespace CsvReadWriteUtility.Parser
                     AddError(ErrorCodes.CannotReadFile,$"{_pathToCsv} Cannot be read\n Exception:{ex.Message}\nStacktrace:{ex.StackTrace}");
                     return false;
                 }
-                if (
-                    ((_csvContentLines.Length == 0 ||
-                      (_csvContentLines.Length == 1 && string.IsNullOrEmpty(_csvContentLines[0].Trim())))
-                     && _ignoreDataConversionError == false))
+                if( 
+                    (_csvContentLines.Length == 0 ||
+                      (_csvContentLines.Length == 1 && string.IsNullOrEmpty(_csvContentLines[0].Trim()))))
                 {
                     AddError(ErrorCodes.FileEmpty, "Csv file Content is empty");
+                    if (!_ignoreEmptyFile)
+                    {
+                        throw new CsvReadWriteException(ErrorCodes.FileEmpty);
+                    }
                     return false;
                 }
                 this.HeaderColumnNamesInCsvFile = SplitLineOfTextIntoCsv.Split(_csvContentLines[0]);
@@ -245,10 +262,16 @@ namespace CsvReadWriteUtility.Parser
                     catch (Exception ex
                     ) //Handle data conversion failure(if csv data is not compatible with object datatype)
                     {
+
+                        _logger.LogError($"{ex.Message}\n{ex.StackTrace}");
                         convertedObj = default(T);
                         this.ExtractFailedRows.Add(lineOfRecordFromCsv);
-                        AddError(ErrorCodes.DataConversionError,
-                            $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name}\n{ex.Message}\n{ex.StackTrace}");
+                        var error =
+                            $"Cannot Convert data '{columnValue}' for Column name {csvColumnNameFromMap}, column data type {property.PropertyType.Name} in file {_pathToCsv}";
+                        AddError(ErrorCodes.DataConversionError, error
+                            );
+                        if(!this._ignoreDataConversionError)
+                            throw new CsvReadWriteException(error,ErrorCodes.DataConversionError);
                         return false;
                     }
                 }

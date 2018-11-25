@@ -26,6 +26,10 @@ namespace CsvReadWriteUtility.Utils
             File.WriteAllText(path, text);
         }
 
+        public void DeleteFile(string path)
+        {
+            File.Delete(path);
+        }
         public void WriteAllLines(string path,string[] text)
         {
             File.WriteAllLines(path, text);

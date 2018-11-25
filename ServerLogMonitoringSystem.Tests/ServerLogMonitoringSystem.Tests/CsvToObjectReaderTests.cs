@@ -6,6 +6,7 @@ using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
 using CsvReadWriteUtility.Utils;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ServerLogGrowthTracker.DomainModelGenerator;
 using ServerLogGrowthTracker.FileInfo;
@@ -18,7 +19,7 @@ namespace ServerLogMonitoringSystem.Tests
         private IFileService _fileServiceReal;
         private CsvToObjectMapper<ServerLogFileInfo> _csvToObjectMapperFileInfoMock;
         private CsvToObjectMapper<ServerLogFileInfo> _csvToObjectMapperFileInfo;
-
+        private ILoggerFactory _loggerFactoryCsvReaderMock;
 
         private CsvToObjectMapper<ServerLogFactInfo> _csvToObjectMapperFactInfo;
         private CsvToObjectReader<ServerLogFileInfo> _readerLogInfo;
@@ -26,6 +27,7 @@ namespace ServerLogMonitoringSystem.Tests
         public CsvToObjectReaderTests()
         {
             _fileServiceMock = Substitute.For<IFileService>();
+            _loggerFactoryCsvReaderMock = Substitute.For<ILoggerFactory>();
             _fileServiceReal = new FileService();
             _csvToObjectMapperFileInfoMock = Substitute.For<CsvToObjectMapper<ServerLogFileInfo>>();
         }
@@ -34,7 +36,7 @@ namespace ServerLogMonitoringSystem.Tests
         [Trait("Unit Test","CsvToObjectReader object tests")]
         public void CheckPreValidations()
         {
-            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>(null,null,null);
+            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>(null,null,null,_loggerFactoryCsvReaderMock);
             bool preExtractValidation = _readerLogInfo.PreExtractValidation();
             preExtractValidation.Should().Be(false, " all the mandatory supplied parameters were not supplied");
             _readerLogInfo.ErrorsOccured.Count.Should().BeGreaterThan(0, "at least one error should be recorded");
@@ -50,7 +52,7 @@ namespace ServerLogMonitoringSystem.Tests
         [Trait("Unit Test", "CsvToObjectReader object tests")]
         public void InvalidPathShouldNotbeAccepted()
         {
-            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"X:\InvalidFolder\InvalidFile.csv",new FileService() , null);
+            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"X:\InvalidFolder\InvalidFile.csv",new FileService() , null,_loggerFactoryCsvReaderMock);
             bool preExtractValidation = _readerLogInfo.PreExtractValidation();
             preExtractValidation.Should().Be(false, "Invalid Path was supplied");
             _readerLogInfo.ErrorsOccured.Count.Should().BeGreaterThan(0, "at least one error should be recorded");
@@ -58,7 +60,7 @@ namespace ServerLogMonitoringSystem.Tests
                 .Be(true, "we passed Invalid file path as constructor parameter");
 
 
-            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"X:\InvalidFolder\InvalidFile.pdf", new FileService(), null);
+            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"X:\InvalidFolder\InvalidFile.pdf", new FileService(), null,_loggerFactoryCsvReaderMock);
              preExtractValidation = _readerLogInfo.PreExtractValidation();
             _readerLogInfo.ErrorsOccured.Any(errors => errors.ErrorDescription.Contains(@"Invalid file extension")).Should()
                 .Be(true, "we passed Invalid file extension");
@@ -89,7 +91,7 @@ namespace ServerLogMonitoringSystem.Tests
             _csvToObjectMapperFileInfo.AddMap((t) => t.FileId, "ID");
             _csvToObjectMapperFileInfo.AddMap(t => t.FileName, "Name");
 
-            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"{path}\Files_6_rows_sample.csv", _fileServiceReal, _csvToObjectMapperFileInfo);
+            _readerLogInfo = new CsvToObjectReader<ServerLogFileInfo>($@"{path}\Files_6_rows_sample.csv", _fileServiceReal, _csvToObjectMapperFileInfo,_loggerFactoryCsvReaderMock);
             return _readerLogInfo.Read().ToList();
         }
         private List<ServerLogFactInfo> GetServerLogFactInfoList()
@@ -100,7 +102,7 @@ namespace ServerLogMonitoringSystem.Tests
             _csvToObjectMapperFactInfo.AddMap(t => t.SizeInBytes, "SizeInBytes");
             _csvToObjectMapperFactInfo.AddMap(t => t.TimeStamp, "Timestamp");
             _readerLogFactInfo = new CsvToObjectReader<ServerLogFactInfo>(
-                path + @"\FileStats_18_rows_sample_3_files.csv", new FileService(), _csvToObjectMapperFactInfo);
+                path + @"\FileStats_18_rows_sample_3_files.csv", new FileService(), _csvToObjectMapperFactInfo,_loggerFactoryCsvReaderMock);
             return _readerLogFactInfo.Read().ToList();
         }
 

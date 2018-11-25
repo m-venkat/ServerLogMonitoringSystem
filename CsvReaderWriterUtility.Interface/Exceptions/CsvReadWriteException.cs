@@ -24,6 +24,8 @@
                     return "Csv without header is not supported in this version, Please ensure header is present in the first line of CSV file";
                 case ErrorCodes.CsvHeaderMustMatchWithMapping:
                     return "Csv header column should match with the supplied Mapper information (Future versions may handle mismatch)";
+                case ErrorCodes.FileEmpty:
+                    return "Csv File is empty";
 
                 default:
                 {

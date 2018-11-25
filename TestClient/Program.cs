@@ -1,121 +1,184 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Xml;
 using CsvReadWriteUtility.Exceptions;
 using CsvReadWriteUtility.Parser;
 using CsvReadWriteUtility.Utils;
+using Microsoft.Extensions.Logging;
 using ServerLogGrowthTracker.DomainModelGenerator;
 using ServerLogGrowthTracker.FileInfo;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace TestClient
+namespace ServerLogSizeMonitoring.Console
 {
     class Program
     {
-        //private static string filePath = $@"C:\Users\muniyandiv\Downloads\TestData\files.csv";
-        //private static string fileStat = @"C:\Users\muniyandiv\Downloads\TestData\filestats.csv";
+        public static LoggerFactory loggerFactory = new LoggerFactory();
+        public static InputParams parameters = new InputParams();
+        public static ILogger logger;
+    
+       
 
-        private static string filePath = $@"C:\Users\venkat\Downloads\TestData\FilesToRead.csv";
-        private static string fileStat = @"C:\Users\venkat\Downloads\TestData\FileStatsToRead.csv";
+        
 
+       
         static void Main(string[] args)
         {
-            Console.WriteLine("Printing FilesToRead.csv Content");
-            Console.WriteLine("======================================================");
+            if (args.Length == 0)
+            {
+                InputParamsHelper.DisplayHelp(); //Exit after displaying help prompt;
+            }
+            parameters = InputParamsHelper.ParseCommandLineParams(args);
+          
+            loggerFactory.AddFile("Logs/ServerLogMonitoringLog-{Date}.txt");
+            logger = loggerFactory.CreateLogger<Program>();
             List<ServerLogFileInfo> serverLogFileInfoList = GetServerLogFileInfo();
             List<ServerLogFactInfo> serverLogFactInfoList = GetServerLogFileFactInfo();
-            foreach (var record in serverLogFileInfoList)
-            {
-                Console.WriteLine($"{record.FileId}\t{record.FileName}");
-            }
-
-            Console.ReadKey();
-            Console.WriteLine("Printing FileStats.csv Content");
-            Console.WriteLine("======================================================");
-            foreach (var record in serverLogFactInfoList)
-            {
-                Console.WriteLine($"{record.FileId}\t{record.TimeStamp}\t{record.SizeInBytes}");
-            }
-            Console.ReadKey();
-            Console.Clear();
             WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);
-
-
-            Console.ReadKey();
+            System.Console.ReadKey();
+            Environment.Exit(0);
 
         }
 
-        static void SlicePrint(IList<List<ServerLogFactGrowthInfo>> sliced)
-        {
-            foreach (var filegroup in sliced)
-            {
-                foreach (var f in filegroup)
-                {
-                    Console.WriteLine(
-                        $"{f.FileId}\t{f.FileName}\t{f.TimeStamp}\t{f.SizeInBytes}\t{f.MilliSecondsSinceLastLogCreatedForThisFile}\t{f.GrowthRateInBytesPerHour}");
-                }
-                Console.WriteLine("=============================================================================================");
-                Console.ReadKey();
-            }
-        }
+   
+
+       
+
         static void WriteCsvFileFinally(List<ServerLogFileInfo> serverLogFileInfoList, List<ServerLogFactInfo> serverLogFactInfoList)
         {
-            ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo> slfg = new ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo>(serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(), serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
-            var sliced = slfg.GenerateSlicedList();
-            SlicePrint(sliced);
-            Console.Clear();
-            ICsvToObjectMapper<ServerLogFactGrowthInfo> mapper = new CsvToObjectMapper<ServerLogFactGrowthInfo>();
-            mapper.AddMap(t => t.FileId, "FileID");
-            mapper.AddMap(t => t.FileName, "Name");
-            mapper.AddMap(t => t.TimeStampFormatted, "Timestamp");
-            mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
-            mapper.AddMap(t => t.GrowthRateInBytesPerHour, "GrowthRateInBytesPerHour");
-            ReflectionHelper<ServerLogFactGrowthInfo> rh = new ReflectionHelper<ServerLogFactGrowthInfo>();
+            try
+            {
+                ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo> slfg =
+                    new ServerLogFactGrowthInfoGenerator<ServerLogFactGrowthInfo>(
+                        serverLogFileInfoList.Cast<IServerLogFileInfo>().ToList(),
+                        serverLogFactInfoList.Cast<IServerLogFactInfo>().ToList());
 
-
-            List<string> fileNames = sliced.Select(list => list?.FirstOrDefault()?.FileId + ".csv").ToList();
-
-            ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C:\Users\venkat\Documents\FinalCsvFiles\", fileNames);
-            //ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter = new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, rh, new FileService(), @"C: \Users\muniyandiv\obj to csv\");
-
-            objCsvWriter.Write();
+                var sliced = slfg.GenerateSlicedList();
+                PrintHelper.WriteToConsoleAndLog($"Calculation Completed for file growth rate, got back {sliced.Count()} data sets", true, true);
+                PrintHelper.WriteToConsoleAndLog($"Attempting writing to csv files at {parameters.OutputFolder}", true, true);
+                ICsvToObjectMapper<ServerLogFactGrowthInfo> mapper = new CsvToObjectMapper<ServerLogFactGrowthInfo>();
+                mapper.AddMap(t => t.FileId, "FileID");
+                mapper.AddMap(t => t.FileName, "Name");
+                mapper.AddMap(t => t.TimeStampFormatted, "Timestamp");
+                mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
+                mapper.AddMap(t => t.GrowthRateInBytesPerHour, "GrowthRateInBytesPerHour");
+                ReflectionHelper<ServerLogFactGrowthInfo> rh = new ReflectionHelper<ServerLogFactGrowthInfo>();
+                List<string> fileNames = sliced.Select(list => list?.FirstOrDefault()?.FileId + ".csv").ToList();
+                ObjectToCsvWriter<ServerLogFactGrowthInfo> objCsvWriter =
+                    new ObjectToCsvWriter<ServerLogFactGrowthInfo>(sliced, mapper, new LoggerFactory(), rh,
+                        new FileService(), parameters.OutputFolder, fileNames);
+                objCsvWriter.Write();
+                PrintHelper.WriteToConsoleAndLog($"Completed writing to {parameters.OutputFolder}. No of files created {sliced.Count()}", true, true);
+            }
+            catch (CsvReadWriteException csvException)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\n{csvException.StackTrace}", true, false);
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\nCheck Log for more details", false, true);
+                Environment.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\n{ex.StackTrace}", true, false);
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\nCheck Log for more details", true, true);
+                Environment.Exit(0);
+            }
         }
 
         static List<ServerLogFileInfo> GetServerLogFileInfo()
-        {
+        {   
             CsvToObjectMapper<ServerLogFileInfo> mapper = new CsvToObjectMapper<ServerLogFileInfo>();
             mapper.AddMap((t) => t.FileId, "ID");
             mapper.AddMap(t => t.FileName, "Name");
-          
-            CsvToObjectReader<ServerLogFileInfo> readCsv = new CsvToObjectReader<ServerLogFileInfo>(
-              filePath, new FileService(), mapper);
-
-
-            var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
-            foreach (var error in errorsOccured)
+            List<ServerLogFileInfo> result =new List<ServerLogFileInfo>();
+            CsvToObjectReader<ServerLogFileInfo> readCsv ;
+            try
             {
-                Console.WriteLine($"{error.ErrorCode}-{error.ErrorDescription}");
-            }
+                readCsv = new CsvToObjectReader<ServerLogFileInfo>(
+                    parameters.FilePath, new FileService(), mapper, loggerFactory);
+                PrintHelper.WriteToConsoleAndLog("CsvToObjectReader instance constructed",true,false);
+                var res = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus);
+                ValidateAndLogExtractedList(parameters.FilePath,parseStatus, readCsv.ErrorsOccured, readCsv.ExtractFailedRows, res?.Count());
+                if (parseStatus)
+                    return res.ToList();
+                else return null;
 
+            }
+            catch (CsvReadWriteException csvException)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\n{csvException.StackTrace}",true,false);
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\nCheck Log for more details",false, true);
+            }
+            catch (Exception ex)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\n{ex.StackTrace}", true, false);
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\nCheck Log for more details",true, true);
+            }
+           
             return result;
         }
 
+       
+       
         static List<ServerLogFactInfo> GetServerLogFileFactInfo()
         {
             CsvToObjectMapper<ServerLogFactInfo> mapper = new CsvToObjectMapper<ServerLogFactInfo>();
             mapper.AddMap(t => t.FileId, "FileID");
             mapper.AddMap(t => t.SizeInBytes, "SizeInBytes");
             mapper.AddMap(t => t.TimeStamp, "Timestamp");
-            CsvToObjectReader<ServerLogFactInfo> readCsv = new CsvToObjectReader<ServerLogFactInfo>(
-                    fileStat, new FileService(), mapper);
-            var result = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus).ToList();
-            foreach (var error in errorsOccured)
+
+            List<ServerLogFactInfo> result = new List<ServerLogFactInfo>();
+            CsvToObjectReader<ServerLogFactInfo> readCsv;
+            try
             {
-                Console.WriteLine($"{error.ErrorCode}-{error.ErrorDescription}");
+                readCsv = new CsvToObjectReader<ServerLogFactInfo>(
+                    parameters.FactFilePath, new FileService(), mapper, loggerFactory);
+                PrintHelper.WriteToConsoleAndLog("CsvToObjectReader instance constructed", true, false);
+                var res = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus);
+                ValidateAndLogExtractedList(parameters.FactFilePath,parseStatus, readCsv.ErrorsOccured, readCsv.ExtractFailedRows,res?.Count());
+                if (parseStatus)
+                     return res.ToList();
+                else return null;
+            }
+            catch (CsvReadWriteException csvException)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\n{csvException.StackTrace}", true, false);
+                PrintHelper.WriteToConsoleAndLog($"{csvException.ErrorCode}\n{csvException.Message}\nCheck Log for more details", false, true);
+            }
+            catch (Exception ex)
+            {
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\n{ex.StackTrace}", true, false);
+                PrintHelper.WriteToConsoleAndLog($"{ex.Message}\nCheck Log for more details", true, true);
+                Environment.Exit(0);
             }
 
-            return result;
+            return null;
+
         }
 
-
+        private static void ValidateAndLogExtractedList(string filePath, bool parseStatus, IList<ErrorCodeAndDescription> errorsOccured, IList<string> failedRows, int? numberOfRecords)
+        {
+           
+            if (parseStatus == false)
+            {
+                PrintHelper.WriteToConsoleAndLog($"CsvToObjectReader to List Extraction failed for {parameters.FactFilePath}", true, true);
+                PrintHelper.PrintErrors(errorsOccured);
+            }
+            else
+            {
+                PrintHelper.WriteToConsoleAndLog($"{filePath} has been extracted to List<ServerLogFileInfo> collection. No of Records: {numberOfRecords}", true, true);
+                if (failedRows.Count == 0)
+                {
+                    PrintHelper.WriteToConsoleAndLog("No Data Conversion error all the records were extracted to Collection", true, true);
+                   
+                }
+                else
+                {
+                    PrintHelper.PrintDataConversionErrors(failedRows);
+                }
+            }
+        }
     }
 }

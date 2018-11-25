@@ -22,13 +22,7 @@ namespace CsvReadWriteUtility.Parser
         bool HasError { get; }
 
       
-        /// <summary>
-        /// Writes the object to CSV File
-        /// </summary>
-        /// <returns></returns>
-        bool Write();
-
-
+        
         /// <summary>
         /// Writes the object to CSV File, Overwrite if the file already Exists
         /// </summary>
