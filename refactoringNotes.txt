@@ -1,0 +1,13 @@
+1. Dependency Injection
+2. Logging
+3. IDispostable
+4. Asyc await / Task based return values
+5. Command line switch
+
+
+
+
+Possible Enhancements/ Design Consideration
+==========================================
+1. Using CsvHelper library with adapter pattern
+2. 

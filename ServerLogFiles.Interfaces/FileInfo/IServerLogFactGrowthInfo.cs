@@ -1,4 +1,4 @@
-﻿namespace ServerLogMonitorSystem.FileInfo
+﻿namespace ServerLogGrowthTracker.FileInfo
 {
     /// <summary>
     ///This Interface represents the file shape/schema of transformed/generated output csv file
@@ -8,7 +8,8 @@
     /// </summary>
     public interface IServerLogFactGrowthInfo : IServerLogFileInfo, IServerLogFactInfo
     {
-        uint MinutesSinceLastLogCreated { get; set; }
-        uint GrowthRateInBytesPerHour { get; set; }
+        double GrowthRateInBytesPerHour { get; set; }
+        string TimeStampFormatted { get; }
+
     }
 }

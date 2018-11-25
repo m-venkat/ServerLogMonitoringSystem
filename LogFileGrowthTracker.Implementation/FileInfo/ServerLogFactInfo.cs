@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ServerLogMonitorSystem.FileInfo
+namespace ServerLogGrowthTracker.FileInfo
 {
     /// <summary>
     /// Interface/Contract that defines the shape of FileStat.csv
@@ -13,6 +13,6 @@ namespace ServerLogMonitorSystem.FileInfo
     {
         public uint FileId { get; set; }
         public DateTime TimeStamp { get; set; }
-        public uint SizeInBytes { get; set; }
+        public double SizeInBytes { get; set; }
     }
 }

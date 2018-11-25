@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>CsvReadWriteUtility</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Interface.csproj" />
+    <ProjectReference Include="..\ServerLogFiles.Interfaces\ServerLogMonitorSystem.Interface.csproj" />
+  </ItemGroup>
+
+</Project>

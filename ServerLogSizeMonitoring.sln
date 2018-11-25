@@ -1,0 +1,73 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Abstractions", "ServerLogFiles.Interfaces\ServerLogGrowthTracker.Abstractions.csproj", "{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogGrowthTracker.Implementation", "LogFileGrowthTracker.Implementation\ServerLogGrowthTracker.Implementation.csproj", "{75811FDF-D126-45C0-98B5-BB6944A443C8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerLogSizeMonitoring.Console", "TestClient\ServerLogSizeMonitoring.Console.csproj", "{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CsvReadWriteUtility", "CsvReadWriteUtility", "{B7712F0B-D89C-41A7-9E8B-068942BB18DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Implementation", "CsvReaderWriterUtility.Implementation\CsvReadWriteUtility.Implementation.csproj", "{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvReadWriteUtility.Abstractions", "CsvReaderWriterUtility.Interface\CsvReadWriteUtility.Abstractions.csproj", "{9AB07175-54AB-45C4-BF92-531CF2A169F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogGrowthTracker", "ServerLogGrowthTracker", "{FF7D4307-597C-4FE4-84DD-284501923DCA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{C641CA0D-C49A-4C40-B906-EAA7403D64D8}"
+	ProjectSection(SolutionItems) = preProject
+		G:\Video Blog\Solution Details.docx = G:\Video Blog\Solution Details.docx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLogSizeMonitoring.Tests", "ServerLogSizeMonitoring.Tests", "{C2B2BD5C-AC6A-4458-A03B-8097FF164C4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerLogMonitoringSystem.Tests", "ServerLogMonitoringSystem.Tests\ServerLogMonitoringSystem.Tests\ServerLogMonitoringSystem.Tests.csproj", "{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75811FDF-D126-45C0-98B5-BB6944A443C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75811FDF-D126-45C0-98B5-BB6944A443C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75811FDF-D126-45C0-98B5-BB6944A443C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75811FDF-D126-45C0-98B5-BB6944A443C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{578509D8-E6D2-4457-AC5C-BF5A05D09CAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB07175-54AB-45C4-BF92-531CF2A169F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB07175-54AB-45C4-BF92-531CF2A169F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB07175-54AB-45C4-BF92-531CF2A169F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB07175-54AB-45C4-BF92-531CF2A169F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E85B30D4-8DCE-4720-8152-FCC77DCB51C7} = {FF7D4307-597C-4FE4-84DD-284501923DCA}
+		{75811FDF-D126-45C0-98B5-BB6944A443C8} = {FF7D4307-597C-4FE4-84DD-284501923DCA}
+		{E25D1A6F-1DBE-4DAD-B5FD-3E32384E9D54} = {B7712F0B-D89C-41A7-9E8B-068942BB18DB}
+		{9AB07175-54AB-45C4-BF92-531CF2A169F5} = {B7712F0B-D89C-41A7-9E8B-068942BB18DB}
+		{DA4BC47A-1BC2-4EF9-9C0E-72761FB84642} = {C2B2BD5C-AC6A-4458-A03B-8097FF164C4E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34BE5B06-97AE-465A-A451-FDF76F5AE870}
+	EndGlobalSection
+EndGlobal

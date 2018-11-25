@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<commandlineinfo>
+
+  USAGE:
+  ---------------------------------------------------------------------------------------------
+
+  dotnet ServerLogSizeMonitoring.dll  -filepath "C:\Temp\Files.csv" -factfilepath "C:\Temp\FileStats.csv" -outputdir "C:\Temp\GrowthInfo" 
+  ---------------------------------------------------------------------------------------------
+All following three parameters are mandatory
+  -filepath	 : Full path of the input file (Files.csv) within double quotes  
+  -factfilepath  : Full path of the fact file (FileStats.csv) within double quotes 
+  -outputdir : Output folder where generated fact data sets  are expected to placed.
+
+ ---------------------------------------------------------------------------------------------
+
+
+</commandlineinfo>

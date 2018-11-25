@@ -1,4 +1,4 @@
-﻿namespace ServerLogMonitorSystem.FileInfo
+﻿namespace ServerLogGrowthTracker.FileInfo
 {
 
     /// <summary>
