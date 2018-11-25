@@ -12,7 +12,7 @@ namespace ServerLogSizeMonitoring.Console
 
 
         /// <summary>
-        /// Function to display the help for command line parameters
+        /// Function to display the help for command line Parameters
         /// </summary>
         public static void DisplayHelp()
         {

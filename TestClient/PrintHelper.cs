@@ -29,7 +29,7 @@ namespace ServerLogSizeMonitoring.Console
             if (writeToConsole)
                 System.Console.WriteLine(message);
             if (writeToLog)
-                Program.logger.LogInformation(message);
+                Program.Logger.LogInformation(message);
 
         }
 
