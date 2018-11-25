@@ -38,6 +38,7 @@ namespace ServerLogSizeMonitoring.Console
             List<ServerLogFileInfo> serverLogFileInfoList = GetServerLogFileInfo();
             List<ServerLogFactInfo> serverLogFactInfoList = GetServerLogFileFactInfo();
             WriteCsvFileFinally(serverLogFileInfoList, serverLogFactInfoList);
+            System.Console.WriteLine("Press any key to exit");
             System.Console.ReadKey();
             Environment.Exit(0);
 
@@ -138,9 +139,8 @@ namespace ServerLogSizeMonitoring.Console
                 PrintHelper.WriteToConsoleAndLog("CsvToObjectReader instance constructed", true, false);
                 var res = readCsv.Read(out IList<ErrorCodeAndDescription> errorsOccured, out bool parseStatus);
                 ValidateAndLogExtractedList(parameters.FactFilePath,parseStatus, readCsv.ErrorsOccured, readCsv.ExtractFailedRows,res?.Count());
-                if (parseStatus)
-                     return res.ToList();
-                else return null;
+                return res?.ToList();
+                
             }
             catch (CsvReadWriteException csvException)
             {

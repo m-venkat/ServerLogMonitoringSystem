@@ -4,25 +4,13 @@
   USAGE:
   ---------------------------------------------------------------------------------------------
 
-  dotnet ServerLogSizeMonitoring.dll  -filepath "C:\Temp\Files.csv" -factfilepath "C:\Temp\FileStats.csv"
-  -outputdir "C:\Temp\GrowthInfo" -ignoreDataErrors true | false  | 0 | 1  -ignoreEmptyFile true | false  | 0 | 1
-  -loglevel info | debug | error
- 
+  dotnet ServerLogSizeMonitoring.dll  -filepath "C:\Temp\Files.csv" -factfilepath "C:\Temp\FileStats.csv" -outputdir "C:\Temp\GrowthInfo" 
   ---------------------------------------------------------------------------------------------
 All following three parameters are mandatory
   -filepath	 : Full path of the input file (Files.csv) within double quotes  
   -factfilepath  : Full path of the fact file (FileStats.csv) within double quotes 
   -outputdir : Output folder where generated fact data sets  are expected to placed.
 
-Optional Parameters 
-  -ignoreDataErrors :if input true or 1, it skips the failed records and proceeds with rest of the records.
-                     if input is false or 0, it immediately throws exception on data conversion error and halts the process.
-  -ignoreEmptyFile : if input true or 1, it skips the failed records and proceeds with rest of the records.
-                     if input is false or 0, it immediately throws exception on data conversion error and halts the process.
-  -loglevel        : if nothing passed, info level will be used
-
-Defaults:
-  -ignoreDataErrors : true, -ignoreEmptyFile = true , loglevel = info
  ---------------------------------------------------------------------------------------------
 
 
